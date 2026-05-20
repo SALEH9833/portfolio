@@ -38,7 +38,7 @@ export const TRANSLATIONS = {
       subtitle: 'De la cryptographie à l\'API REST sécurisée, voici les technologies que je maîtrise et avec lesquelles je construis.',
       techTitle: 'Technologies utilisées', certTitle: 'Certifications obtenues',
     },
-    marquee: { title: 'Technologies en mouvement' },
+    marquee: { title: 'Technologies' },
     projects: {
       eyebrow: 'Projets',
       title1: 'Des projets qui mêlent', titleAccent: 'code et sécurité.',
@@ -112,7 +112,7 @@ export const TRANSLATIONS = {
       subtitle: 'From cryptography to secure REST APIs — here are the technologies I master and use to build.',
       techTitle: 'Technologies used', certTitle: 'Certifications earned',
     },
-    marquee: { title: 'Technologies in motion' },
+    marquee: { title: 'Technologies' },
     projects: {
       eyebrow: 'Projects',
       title1: 'Projects mixing', titleAccent: 'code and security.',
@@ -186,7 +186,7 @@ export const TRANSLATIONS = {
       subtitle: 'من التشفير إلى REST API الآمنة — التقنيات التي أتقنها وأبني بها.',
       techTitle: 'التقنيات المستخدمة', certTitle: 'الشهادات',
     },
-    marquee: { title: 'تقنيات متحركة' },
+    marquee: { title: 'تقنيات' },
     projects: {
       eyebrow: 'المشاريع',
       title1: 'مشاريع تجمع بين', titleAccent: 'الكود والأمن.',
