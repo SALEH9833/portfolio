@@ -204,6 +204,24 @@ async function autoMigrate() {
       console.log('[Migrate] Default profile created');
     }
 
+    // One-shot import of real CV content (profile, experience, projects, skills, ...)
+    // Runs ONLY if experience table is empty (otherwise we'd wipe user-edited data).
+    try {
+      const expCount = await query('SELECT COUNT(*)::int AS n FROM experience');
+      if (expCount.rows[0].n === 0) {
+        const importPath = path.join(__dirname, 'production-import.sql');
+        if (fs.existsSync(importPath)) {
+          const sql = fs.readFileSync(importPath, 'utf-8');
+          await query(sql);
+          console.log('[Migrate] Imported real CV content from production-import.sql');
+        }
+      } else {
+        console.log('[Migrate] Skipping CV import — experience table already has data');
+      }
+    } catch (e) {
+      console.error('[Migrate] CV content import failed:', e.message);
+    }
+
     console.log('[Migrate] All tables ready');
   } catch (err) {
     console.error('[Migrate] Failed:', err.message);
