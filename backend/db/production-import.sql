@@ -234,17 +234,20 @@ SELECT pg_catalog.setval('public.tech_stack_id_seq', 12, true);
 
 
 
+-- Restore search_path (pg_dump set it to empty earlier in this script)
+SET search_path = public, pg_catalog;
+
 -- Reset sequences based on max(id)
-SELECT setval(pg_get_serial_sequence('profile','id'), COALESCE((SELECT MAX(id) FROM profile),1));
-SELECT setval(pg_get_serial_sequence('experience','id'), COALESCE((SELECT MAX(id) FROM experience),1));
-SELECT setval(pg_get_serial_sequence('projects','id'), COALESCE((SELECT MAX(id) FROM projects),1));
-SELECT setval(pg_get_serial_sequence('skill_categories','id'), COALESCE((SELECT MAX(id) FROM skill_categories),1));
-SELECT setval(pg_get_serial_sequence('skills','id'), COALESCE((SELECT MAX(id) FROM skills),1));
-SELECT setval(pg_get_serial_sequence('education','id'), COALESCE((SELECT MAX(id) FROM education),1));
-SELECT setval(pg_get_serial_sequence('languages','id'), COALESCE((SELECT MAX(id) FROM languages),1));
-SELECT setval(pg_get_serial_sequence('certifications','id'), COALESCE((SELECT MAX(id) FROM certifications),1));
-SELECT setval(pg_get_serial_sequence('activities','id'), COALESCE((SELECT MAX(id) FROM activities),1));
-SELECT setval(pg_get_serial_sequence('strengths','id'), COALESCE((SELECT MAX(id) FROM strengths),1));
-SELECT setval(pg_get_serial_sequence('tech_stack','id'), COALESCE((SELECT MAX(id) FROM tech_stack),1));
+SELECT setval(pg_get_serial_sequence('public.profile','id'), COALESCE((SELECT MAX(id) FROM public.profile),1));
+SELECT setval(pg_get_serial_sequence('public.experience','id'), COALESCE((SELECT MAX(id) FROM public.experience),1));
+SELECT setval(pg_get_serial_sequence('public.projects','id'), COALESCE((SELECT MAX(id) FROM public.projects),1));
+SELECT setval(pg_get_serial_sequence('public.skill_categories','id'), COALESCE((SELECT MAX(id) FROM public.skill_categories),1));
+SELECT setval(pg_get_serial_sequence('public.skills','id'), COALESCE((SELECT MAX(id) FROM public.skills),1));
+SELECT setval(pg_get_serial_sequence('public.education','id'), COALESCE((SELECT MAX(id) FROM public.education),1));
+SELECT setval(pg_get_serial_sequence('public.languages','id'), COALESCE((SELECT MAX(id) FROM public.languages),1));
+SELECT setval(pg_get_serial_sequence('public.certifications','id'), COALESCE((SELECT MAX(id) FROM public.certifications),1));
+SELECT setval(pg_get_serial_sequence('public.activities','id'), COALESCE((SELECT MAX(id) FROM public.activities),1));
+SELECT setval(pg_get_serial_sequence('public.strengths','id'), COALESCE((SELECT MAX(id) FROM public.strengths),1));
+SELECT setval(pg_get_serial_sequence('public.tech_stack','id'), COALESCE((SELECT MAX(id) FROM public.tech_stack),1));
 
 COMMIT;
