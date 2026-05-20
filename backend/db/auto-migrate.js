@@ -204,22 +204,35 @@ async function autoMigrate() {
       console.log('[Migrate] Default profile created');
     }
 
-    // One-shot import of real CV content (profile, experience, projects, skills, ...)
-    // Runs ONLY if experience table is empty (otherwise we'd wipe user-edited data).
+    // One-shot import of real CV content — runs ONLY if experience table is empty
     try {
       const expCount = await query('SELECT COUNT(*)::int AS n FROM experience');
+      console.log(`[Migrate] Experience table currently has ${expCount.rows[0].n} rows`);
       if (expCount.rows[0].n === 0) {
         const importPath = path.join(__dirname, 'production-import.sql');
+        console.log(`[Migrate] Looking for ${importPath}`);
         if (fs.existsSync(importPath)) {
           const sql = fs.readFileSync(importPath, 'utf-8');
-          await query(sql);
-          console.log('[Migrate] Imported real CV content from production-import.sql');
+          console.log(`[Migrate] Read ${sql.length} chars from production-import.sql — executing...`);
+          try {
+            await query(sql);
+            console.log('[Migrate] ✅ CV content import SUCCESS');
+          } catch (sqlErr) {
+            console.error('[Migrate] ❌ SQL execution failed:', sqlErr.message);
+            console.error('[Migrate] Error detail:', sqlErr.detail || '(no detail)');
+            console.error('[Migrate] Error hint:', sqlErr.hint || '(no hint)');
+            console.error('[Migrate] Error position:', sqlErr.position || '(no position)');
+            // Try to rollback in case transaction is still open
+            try { await query('ROLLBACK'); } catch {}
+          }
+        } else {
+          console.warn('[Migrate] ⚠️ production-import.sql NOT FOUND in container');
         }
       } else {
-        console.log('[Migrate] Skipping CV import — experience table already has data');
+        console.log('[Migrate] Skipping CV import — experience already populated');
       }
     } catch (e) {
-      console.error('[Migrate] CV content import failed:', e.message);
+      console.error('[Migrate] CV check failed:', e.message);
     }
 
     console.log('[Migrate] All tables ready');
