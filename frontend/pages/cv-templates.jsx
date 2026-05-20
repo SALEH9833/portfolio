@@ -299,10 +299,17 @@ export default function CVTemplatesGallery({ templates: initial }) {
                         alt={t.name}
                         loading="lazy"
                         className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
+                        onError={(e) => {
+                          // Canva design URLs aren't images — fallback to CSS preview
+                          e.currentTarget.style.display = 'none';
+                          const fb = e.currentTarget.nextElementSibling;
+                          if (fb) fb.style.display = 'block';
+                        }}
                       />
-                    ) : (
-                      <FreeTemplatePreview builderId={t.builder_id || t.slug} name={t.name} />
-                    )}
+                    ) : null}
+                    <div style={{ display: t.preview_url ? 'none' : 'block', width: '100%', height: '100%' }}>
+                      <FreeTemplatePreview builderId={t.builder_id || t.slug || 'modern'} name={t.name} />
+                    </div>
                     {/* Badge */}
                     <div className="absolute top-2.5 start-2.5">
                       {t.is_premium ? (
