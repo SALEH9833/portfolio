@@ -143,9 +143,8 @@ async function autoMigrate() {
       console.warn('[Migrate] ADMIN_PASSWORD not set — admin user NOT created. Set it in Railway env.');
     }
 
-    // Bootstrap CV templates if cv_templates is empty
-    const templatesExists = await query('SELECT COUNT(*)::int AS n FROM cv_templates');
-    if (templatesExists.rows[0].n === 0) {
+    // Bootstrap CV templates — idempotent upsert at every startup
+    {
       const templates = [
         { slug: 'modern',   name: 'Modern',      description: 'Barre latérale colorée, design contemporain', category: 'Universel', style: 'modern',   preview_url: null, builder_id: 'modern',   is_premium: false, price: 0, order: 1 },
         { slug: 'classic',  name: 'Classique',   description: 'Sobre, ATS-friendly, parfait pour candidatures classiques', category: 'Universel', style: 'classic',  preview_url: null, builder_id: 'classic',  is_premium: false, price: 0, order: 2 },
@@ -184,7 +183,7 @@ async function autoMigrate() {
           [t.slug, t.name, t.description, t.category, t.style, t.preview_url, t.edit_url || null, t.builder_id || null, t.is_premium, t.price, t.tags || [], t.order]
         );
       }
-      console.log(`[Migrate] Seeded ${templates.length} CV templates`);
+      console.log(`[Migrate] Upserted ${templates.length} CV templates`);
     }
 
     // Bootstrap minimal profile row if missing (so /api/profile doesn't return null)
