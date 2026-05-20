@@ -1,4 +1,4 @@
-﻿-- Production import: replace bootstrap defaults with real CV content
+-- Production import: replace bootstrap defaults with real CV content
 BEGIN;
 TRUNCATE TABLE
   activities, certifications, languages, education,
