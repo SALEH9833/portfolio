@@ -1,0 +1,76 @@
+# ============================================================================
+# Portfolio - Top-level .gitignore
+# Protège les secrets, ignore les builds et fichiers locaux
+# ============================================================================
+
+# -------- Secrets (CRITIQUE — ne JAMAIS push) --------
+.env
+.env.local
+.env.*.local
+**/.env
+**/.env.local
+**/.env.*.local
+*.pem
+*.key
+
+# -------- Dépendances (énormes, à régénérer côté serveur) --------
+node_modules/
+**/node_modules/
+.pnp
+.pnp.js
+.yarn/
+
+# -------- Builds (régénérés au déploiement) --------
+.next/
+**/.next/
+out/
+build/
+dist/
+
+# -------- Logs --------
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+*.log
+logs/
+
+# -------- OS --------
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*.swo
+
+# -------- IDE --------
+.vscode/
+.idea/
+*.iml
+.cursor/
+
+# -------- Tests / coverage --------
+coverage/
+.nyc_output/
+
+# -------- Cache --------
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+
+# -------- Uploads utilisateurs (vie privée — pas sur git) --------
+backend/public/uploads/
+!backend/public/uploads/.gitkeep
+
+# -------- Fichiers temporaires --------
+*.tmp
+*.bak
+tmp/
+
+# -------- Vercel / Railway --------
+.vercel/
+.railway/
+
+# -------- TypeScript --------
+*.tsbuildinfo
+next-env.d.ts

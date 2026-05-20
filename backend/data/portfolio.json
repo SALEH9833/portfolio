@@ -1,0 +1,301 @@
+{
+  "profile": {
+    "name": "Saleh Mahamat Saleh",
+    "firstName": "Saleh",
+    "title": "Étudiant en Cybersécurité & Développeur Full-Stack",
+    "subtitle": "DUT 2ème Année • Spécialisation Cybersécurité • EST Safi",
+    "tagline": "Construire des systèmes sûrs, du code propre, et des solutions qui durent.",
+    "bio": "Passionné par la sécurité des systèmes d'information, je développe mes compétences en cryptologie et en administration réseau tout en consolidant une solide expérience en développement full-stack. Curieux, rigoureux et orienté solutions, je suis prêt à relever les défis de la cybersécurité moderne.",
+    "email": "s.mahahatsaleh0043@uca.ac.ma",
+    "phone": "+212 6 46 60 89 11",
+    "location": "Safi, Maroc",
+    "birth": "20 Février 2005",
+    "license": "Permis B",
+    "linkedin": "https://linkedin.com/in/Saleh-Mahamat",
+    "github": "https://github.com/SALEH9833",
+    "photoUrl": "https://avatars.githubusercontent.com/SALEH9833",
+    "languages": [
+      { "name": "Arabe", "level": "Langue maternelle", "proficiency": 100, "flag": "🇹🇩" },
+      { "name": "Français", "level": "B2 — TCF : 412/699", "proficiency": 72, "flag": "🇫🇷" },
+      { "name": "Anglais", "level": "Intermédiaire (B1)", "proficiency": 55, "flag": "🇬🇧" }
+    ],
+    "strengths": [
+      {
+        "icon": "shield",
+        "title": "Passionné de Cybersécurité",
+        "desc": "Veille constante sur les nouvelles menaces, membre actif du club Cyber de l'EST Safi."
+      },
+      {
+        "icon": "users",
+        "title": "Excellent Relationnel",
+        "desc": "Développé au contact des clients et au sein de diverses équipes multi-culturelles."
+      },
+      {
+        "icon": "zap",
+        "title": "Autonome & Rigoureux",
+        "desc": "Capable de mener un projet de l'analyse du besoin jusqu'à la livraison finale."
+      },
+      {
+        "icon": "book-open",
+        "title": "Apprentissage Rapide",
+        "desc": "Curiosité technique qui me pousse à explorer constamment de nouvelles technologies."
+      }
+    ]
+  },
+
+  "projects": [
+    {
+      "id": "graphsense",
+      "title": "GraphSense",
+      "subtitle": "Système d'Analyse Topologique de Réseaux Malveillants",
+      "description": "Application web pour la détection de profils malveillants via Neo4j Graph Data Science. Utilise des algorithmes de théorie des graphes pour identifier les Botmasters et les points de propagation de malwares.",
+      "longDescription": "GraphSense est un système d'analyse topologique basé sur Neo4j GDS qui exploite les propriétés mathématiques des graphes pour détecter automatiquement les nœuds malveillants dans un réseau. Le module PageRank identifie les Botmasters (nœuds à haute autorité), tandis que le module Betweenness Centrality repère les points de propagation critiques. Un indicateur de dangerosité transforme les scores mathématiques bruts en niveaux de menace lisibles (Low / Medium / High).",
+      "category": "Cybersécurité",
+      "tech": ["Neo4j", "Python", "JavaScript", "Graph Data Science", "PageRank", "Betweenness"],
+      "highlights": [
+        "Module PageRank pour identifier les Botmasters",
+        "Module Betweenness pour détecter les points de propagation",
+        "Indicateur de dangerosité (Low / Medium / High)",
+        "Visualisation interactive du graphe de réseau"
+      ],
+      "color": "#00d4ff",
+      "icon": "network",
+      "github": "https://github.com/SALEH9833",
+      "featured": true
+    },
+    {
+      "id": "cryptolab",
+      "title": "CryptoLab",
+      "subtitle": "Laboratoire de Cryptanalyse Pédagogique",
+      "description": "Application web démonstractive des failles du chiffrement César via une attaque par analyse fréquentielle, avec comparaison à l'AES moderne.",
+      "longDescription": "CryptoLab est un outil pédagogique interactif qui visualise les vulnérabilités du chiffrement par substitution monoalphabétique. L'application effectue une attaque par analyse fréquentielle en temps réel, représentée par des graphiques dynamiques. Une comparaison côte-à-côte avec l'AES-256 démontre l'évolution de la cryptographie moderne et illustre pourquoi les chiffrements classiques sont obsolètes face aux attaques statistiques.",
+      "category": "Cryptographie",
+      "tech": ["PHP", "JavaScript", "HTML/CSS", "Chart.js", "Analyse fréquentielle", "AES"],
+      "highlights": [
+        "Attaque par analyse fréquentielle visualisée",
+        "Graphiques dynamiques en temps réel",
+        "Comparaison César vs AES-256",
+        "Interface pédagogique interactive"
+      ],
+      "color": "#7c3aed",
+      "icon": "lock",
+      "github": "https://github.com/SALEH9833",
+      "featured": true
+    },
+    {
+      "id": "hybah",
+      "title": "HYBAH Coffee House",
+      "subtitle": "Application Web Full-Stack de Réservation",
+      "description": "Application MERN complète permettant aux clients de réserver des salles et commander des gâteaux, avec authentification JWT et paiement Stripe.",
+      "longDescription": "HYBAH Coffee House est une application web full-stack construite sur la stack MERN (MongoDB, Express, React, Node.js). Elle intègre un système d'authentification sécurisé par JWT avec protection des routes, un module de réservation dynamique avec vérification de disponibilité en temps réel, une tarification automatique basée sur la durée, et l'API Stripe pour la gestion des acomptes. L'interface React est entièrement responsive et optimisée pour mobile.",
+      "category": "Full-Stack",
+      "tech": ["React.js", "Node.js", "Express", "MongoDB", "JWT", "Stripe", "Mongoose"],
+      "highlights": [
+        "Authentification JWT avec protection des routes",
+        "Réservation en temps réel avec vérification de disponibilité",
+        "Paiement sécurisé via Stripe API",
+        "Interface responsive React"
+      ],
+      "color": "#f59e0b",
+      "icon": "coffee",
+      "github": "https://github.com/SALEH9833",
+      "featured": true
+    }
+  ],
+
+  "skills": {
+    "categories": [
+      {
+        "name": "Sécurité & Réseaux",
+        "icon": "shield",
+        "color": "#00d4ff",
+        "items": [
+          { "name": "Sécurité des SI", "level": 75 },
+          { "name": "Cryptographie", "level": 70 },
+          { "name": "Administration Réseau", "level": 60 },
+          { "name": "CCNA (Intro Networks)", "level": 65 },
+          { "name": "Kali Linux / Pentest", "level": 55 }
+        ]
+      },
+      {
+        "name": "Développement",
+        "icon": "code",
+        "color": "#7c3aed",
+        "items": [
+          { "name": "JavaScript / React", "level": 80 },
+          { "name": "Node.js / Express", "level": 75 },
+          { "name": "PHP", "level": 70 },
+          { "name": "Java", "level": 65 },
+          { "name": "Python", "level": 65 },
+          { "name": "C / Assembleur", "level": 50 }
+        ]
+      },
+      {
+        "name": "Bases de Données",
+        "icon": "database",
+        "color": "#10b981",
+        "items": [
+          { "name": "MySQL", "level": 75 },
+          { "name": "PostgreSQL", "level": 65 },
+          { "name": "MongoDB", "level": 70 },
+          { "name": "Neo4j", "level": 60 }
+        ]
+      },
+      {
+        "name": "Outils & Méthodes",
+        "icon": "tool",
+        "color": "#f59e0b",
+        "items": [
+          { "name": "Git / GitHub", "level": 80 },
+          { "name": "Linux (Ubuntu / Kali)", "level": 70 },
+          { "name": "UML & Modélisation", "level": 65 },
+          { "name": "Docker (bases)", "level": 40 }
+        ]
+      }
+    ],
+    "techStack": [
+      { "name": "React", "icon": "⚛️" },
+      { "name": "Node.js", "icon": "🟢" },
+      { "name": "MongoDB", "icon": "🍃" },
+      { "name": "Neo4j", "icon": "🔗" },
+      { "name": "MySQL", "icon": "🐬" },
+      { "name": "Python", "icon": "🐍" },
+      { "name": "Java", "icon": "☕" },
+      { "name": "PHP", "icon": "🐘" },
+      { "name": "Git", "icon": "🔧" },
+      { "name": "Linux", "icon": "🐧" },
+      { "name": "Kali", "icon": "🛡️" },
+      { "name": "Stripe", "icon": "💳" }
+    ],
+    "certifications": [
+      {
+        "name": "CCNA — Introduction to Networks",
+        "issuer": "Cisco",
+        "year": "2025",
+        "color": "#00bceb"
+      }
+    ]
+  },
+
+  "experience": [
+    {
+      "id": "opc-safi",
+      "role": "Stagiaire — Stage de 2ème Année",
+      "company": "OPC-SAFI",
+      "location": "Safi, Maroc",
+      "period": "Avril 2026 — Juin 2026",
+      "type": "Stage",
+      "current": true,
+      "description": "Stage de fin de 2ème année DUT en cybersécurité.",
+      "tasks": [
+        "Mission en cours — détails à compléter",
+        "Application des connaissances en sécurité des systèmes d'information"
+      ],
+      "color": "#00d4ff"
+    },
+    {
+      "id": "pfe",
+      "role": "Projet de Fin d'Études — Graph Analytics",
+      "company": "EST Safi",
+      "location": "Safi, Maroc",
+      "period": "Décembre 2025 — Mars 2026",
+      "type": "Projet académique",
+      "current": false,
+      "description": "Étude et implémentation d'algorithmes de la bibliothèque Neo4j Graph Data Science (GDS) : PageRank, centralité et détection de communautés pour l'analyse de réseaux.",
+      "tasks": [
+        "Étude des algorithmes Neo4j GDS (PageRank, Betweenness, Community Detection)",
+        "Implémentation d'un système de détection de profils malveillants",
+        "Visualisation interactive des graphes de réseau",
+        "Rédaction du rapport technique et présentation orale"
+      ],
+      "color": "#7c3aed"
+    },
+    {
+      "id": "cimenterie",
+      "role": "Stagiaire Développement Applicatif",
+      "company": "Cimenterie de Safi",
+      "location": "Safi, Maroc",
+      "period": "Juillet 2025 — Août 2025",
+      "type": "Stage",
+      "current": false,
+      "description": "Développement d'une application d'automatisation des billets d'invitation au restaurant d'entreprise.",
+      "tasks": [
+        "Analyse des besoins et modélisation de la base de données",
+        "Développement de la solution complète (PHP, MySQL)",
+        "Tests et livraison de l'application",
+        "Documentation technique"
+      ],
+      "color": "#10b981"
+    },
+    {
+      "id": "hybah-bakery",
+      "role": "Responsable & Caissier",
+      "company": "Boulangerie HYBAH",
+      "location": "N'Djamena, Tchad",
+      "period": "Février 2024 — Octobre 2024",
+      "type": "Emploi",
+      "current": false,
+      "description": "Gestion de la relation client et de la caisse dans un environnement à rythme rapide.",
+      "tasks": [
+        "Gestion de la relation client et prise de commandes",
+        "Travail en équipe dans un environnement à rythme rapide",
+        "Fiabilité, ponctualité et communication interpersonnelle"
+      ],
+      "color": "#f59e0b"
+    }
+  ],
+
+  "education": [
+    {
+      "degree": "DUT Informatique — Cybersécurité",
+      "school": "École Supérieure de Technologie",
+      "location": "Safi, Maroc",
+      "period": "Septembre 2025 — Avril 2026",
+      "current": true,
+      "modules": ["Cryptologie", "Sécurité des Réseaux", "Administration Système", "Développement Orienté Objet (Java)", "Modélisation UML"]
+    },
+    {
+      "degree": "DUT Informatique — 1ère Année",
+      "school": "École Supérieure de Technologie",
+      "location": "Safi, Maroc",
+      "period": "Septembre 2024 — Juin 2025",
+      "current": false,
+      "modules": ["Algorithmique", "Bases de données", "Réseaux", "Programmation Web", "Systèmes d'exploitation"]
+    },
+    {
+      "degree": "Baccalauréat Scientifique",
+      "school": "Lycée Porte d'Avenir",
+      "location": "N'Djamena, Tchad",
+      "period": "Octobre 2022 — Juin 2023",
+      "current": false,
+      "modules": ["Mathématiques", "Physique-Chimie", "Sciences de l'Ingénieur"]
+    }
+  ],
+
+  "activities": [
+    {
+      "icon": "shield",
+      "title": "Club de Cybersécurité — EST Safi",
+      "desc": "Membre actif depuis 2025. Ateliers de sécurité, CTF et veille technologique.",
+      "year": "2025"
+    },
+    {
+      "icon": "mic",
+      "title": "Modérateur — Semaine d'Intégration",
+      "desc": "Modérateur langue arabe pour l'accueil des nouveaux étudiants de l'EST Safi.",
+      "year": "2025"
+    },
+    {
+      "icon": "music",
+      "title": "Guitariste — Club Musique",
+      "desc": "Membre du club musique de l'école. Pratique de la guitare.",
+      "year": "2024"
+    },
+    {
+      "icon": "users",
+      "title": "Club Social",
+      "desc": "Engagement associatif et vie de campus.",
+      "year": "2024"
+    }
+  ]
+}
