@@ -116,6 +116,51 @@ async function autoMigrate() {
       created_at TIMESTAMPTZ DEFAULT NOW()
     )`);
 
+    await query(`CREATE TABLE IF NOT EXISTS admin_users (
+      id SERIAL PRIMARY KEY,
+      username TEXT UNIQUE NOT NULL,
+      password_hash TEXT NOT NULL,
+      email TEXT,
+      created_at TIMESTAMPTZ DEFAULT NOW(),
+      last_login TIMESTAMPTZ
+    )`);
+
+    // Bootstrap admin user from env vars if missing
+    const adminUsername = process.env.ADMIN_USERNAME || 'admin';
+    const adminPassword = process.env.ADMIN_PASSWORD;
+    if (adminPassword) {
+      const existing = await query('SELECT id FROM admin_users WHERE username = $1', [adminUsername]);
+      if (!existing.rows.length) {
+        const bcrypt = require('bcryptjs');
+        const hash = await bcrypt.hash(adminPassword, 12);
+        await query(
+          'INSERT INTO admin_users (username, password_hash, email) VALUES ($1, $2, $3)',
+          [adminUsername, hash, process.env.EMAIL_TO || null]
+        );
+        console.log(`[Migrate] Admin user "${adminUsername}" bootstrapped from env`);
+      }
+    } else {
+      console.warn('[Migrate] ADMIN_PASSWORD not set — admin user NOT created. Set it in Railway env.');
+    }
+
+    // Bootstrap minimal profile row if missing (so /api/profile doesn't return null)
+    const profileExists2 = await query('SELECT id FROM profile LIMIT 1');
+    if (!profileExists2.rows.length) {
+      await query(`
+        INSERT INTO profile (name, first_name, email, title, subtitle, tagline, bio)
+        VALUES ($1, $2, $3, $4::jsonb, $5::jsonb, $6::jsonb, $7::jsonb)
+      `, [
+        'Saleh Mahamat Saleh',
+        'Saleh',
+        'salehmhtsaleh224@gmail.com',
+        '{"fr":"Étudiant en Cybersécurité & Développeur Full-Stack","en":"Cybersecurity Student & Full-Stack Developer","ar":"طالب أمن سيبراني ومطور Full-Stack"}',
+        '{"fr":"DUT 2ème Année · EST Safi","en":"2nd Year DUT · EST Safi","ar":"السنة الثانية DUT · المدرسة العليا للتكنولوجيا آسفي"}',
+        '{"fr":"Construire des systèmes sûrs, du code propre, et des solutions qui durent.","en":"Building secure systems, clean code, and lasting solutions.","ar":"بناء أنظمة آمنة وأكواد نظيفة وحلول دائمة."}',
+        '{"fr":"Étudiant passionné par la cybersécurité et le développement full-stack. Je construis des solutions sécurisées et performantes.","en":"Passionate student in cybersecurity and full-stack development. I build secure and performant solutions.","ar":"طالب شغوف بالأمن السيبراني والتطوير الشامل."}',
+      ]);
+      console.log('[Migrate] Default profile created');
+    }
+
     console.log('[Migrate] All tables ready');
   } catch (err) {
     console.error('[Migrate] Failed:', err.message);
