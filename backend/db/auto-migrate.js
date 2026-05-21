@@ -143,7 +143,20 @@ async function autoMigrate() {
       console.warn('[Migrate] ADMIN_PASSWORD not set — admin user NOT created. Set it in Railway env.');
     }
 
-    // Bootstrap CV templates — idempotent upsert at every startup
+    // Clean up: remove premium templates with placeholder Canva URLs that don't actually work.
+    // (Will be re-added one by one via admin when Saleh has real Canva designs.)
+    try {
+      const cleaned = await query(
+        "DELETE FROM cv_templates WHERE is_premium = TRUE AND edit_url LIKE 'https://www.canva.com/d/%' RETURNING slug"
+      );
+      if (cleaned.rowCount > 0) {
+        console.log(`[Migrate] Cleaned ${cleaned.rowCount} broken premium templates`);
+      }
+    } catch (e) {
+      console.warn('[Migrate] Could not clean premium templates:', e.message);
+    }
+
+    // Bootstrap CV templates — idempotent upsert at every startup (10 free in-site builders only)
     {
       const templates = [
         { slug: 'modern',   name: 'Modern',      description: 'Barre latérale colorée, design contemporain', category: 'Universel', style: 'modern',   preview_url: null, builder_id: 'modern',   is_premium: false, price: 0, order: 1 },
@@ -156,25 +169,6 @@ async function autoMigrate() {
         { slug: 'startup',     name: 'Startup',          description: 'Variante moderne dynamique pour profils startup', category: 'Tech', style: 'modern',   preview_url: null, builder_id: 'modern',   is_premium: false, price: 0, order: 8 },
         { slug: 'designer',    name: 'Designer',         description: 'Variante créative orientée portfolio', category: 'Créatif', style: 'creative', preview_url: null, builder_id: 'creative', is_premium: false, price: 0, order: 9 },
         { slug: 'developer',   name: 'Developer',        description: 'Variante tech orientée open-source / GitHub', category: 'Tech', style: 'tech',     preview_url: null, builder_id: 'tech',     is_premium: false, price: 0, order: 10 },
-        { slug: 'canva-tech-2',     name: 'Tech Pro - Clean Blue',   description: 'CV professionnel avec accents bleus, fond blanc, parfait pour ingénieurs', category: 'Tech', style: 'canva', preview_url: 'https://design.canva.ai/MUBaZR1Wsa33tAp', edit_url: 'https://www.canva.com/d/5fGGYV7cRy4Wxui', is_premium: true, price: 4.99, tags: ['tech','propre','bleu'], order: 11 },
-        { slug: 'canva-tech-3',     name: 'Tech Pro - Minimal Dev',  description: 'CV minimaliste pour développeur, espacement généreux', category: 'Tech', style: 'canva', preview_url: 'https://design.canva.ai/vjMNV51GEm9At0q', edit_url: 'https://www.canva.com/d/ptiL_mkPHmAkc0J', is_premium: true, price: 4.99, tags: ['tech','minimaliste'], order: 12 },
-        { slug: 'canva-tech-4',     name: 'Tech Pro - Bold Orange',  description: 'CV tech audacieux avec accents orange et formes géométriques', category: 'Tech', style: 'canva', preview_url: 'https://design.canva.ai/_lZrUzlGar5l8LT', edit_url: 'https://www.canva.com/d/f0uycpB0sUng3ir', is_premium: true, price: 4.99, tags: ['tech','audacieux'], order: 13 },
-        { slug: 'canva-creative-1', name: 'Créatif Magazine',        description: 'Layout magazine avec grande typographie pour marketers et designers', category: 'Créatif', style: 'canva', preview_url: 'https://design.canva.ai/ulqMdPn9ncCvbMn', edit_url: 'https://www.canva.com/d/IauuvsGkDEqFbVf', is_premium: true, price: 4.99, tags: ['créatif','marketing'], order: 20 },
-        { slug: 'canva-creative-2', name: 'Créatif Pastel',          description: 'Palette pastel élégante, typographie serif raffinée', category: 'Créatif', style: 'canva', preview_url: 'https://design.canva.ai/MZjobhiEiAFeK5_', edit_url: 'https://www.canva.com/d/DIN_FUHTMbywCMu', is_premium: true, price: 4.99, tags: ['créatif','pastel'], order: 21 },
-        { slug: 'canva-creative-3', name: 'Créatif Editorial',       description: 'Style éditorial avec vitrine portfolio intégrée', category: 'Créatif', style: 'canva', preview_url: 'https://design.canva.ai/nMEj1kzv_Nl10nr', edit_url: 'https://www.canva.com/d/nxbS0MCpSFF1U91', is_premium: true, price: 4.99, tags: ['créatif','portfolio'], order: 22 },
-        { slug: 'canva-creative-4', name: 'Créatif Géométrique',     description: 'Formes géométriques colorées, parfait pour designers', category: 'Créatif', style: 'canva', preview_url: 'https://design.canva.ai/EZZuANhoFFvqp8K', edit_url: 'https://www.canva.com/d/2jW2Pj01iQ8zmRZ', is_premium: true, price: 4.99, tags: ['créatif','géométrique'], order: 23 },
-        { slug: 'canva-corp-1',     name: 'Executive Classic',       description: 'CV cadre dirigeant avec typographie serif et accents navy', category: 'Corporate', style: 'canva', preview_url: 'https://design.canva.ai/PBLqoiLnjIl7gVt', edit_url: 'https://www.canva.com/d/AYqTEj-ixKgJMtt', is_premium: true, price: 6.99, tags: ['corporate','dirigeant'], order: 30 },
-        { slug: 'canva-corp-2',     name: 'Executive Modern Navy',   description: 'CV cadre moderne, palette marine, ATS-friendly', category: 'Corporate', style: 'canva', preview_url: 'https://design.canva.ai/ucKQTHLaU3RiNrV', edit_url: 'https://www.canva.com/d/r-63YAR1Zkjx0wT', is_premium: true, price: 6.99, tags: ['corporate','marine'], order: 31 },
-        { slug: 'canva-corp-3',     name: 'Consulting Refined',      description: 'CV consulting raffiné, palette grise sophistiquée', category: 'Corporate', style: 'canva', preview_url: 'https://design.canva.ai/uaNM9xoHkzOu1vg', edit_url: 'https://www.canva.com/d/biJSGJY2A-MrDdg', is_premium: true, price: 6.99, tags: ['corporate','consulting'], order: 32 },
-        { slug: 'canva-corp-4',     name: 'Executive Black & White', description: 'CV cadre noir et blanc minimaliste, intemporel', category: 'Corporate', style: 'canva', preview_url: 'https://design.canva.ai/YHrvmDRYRtn4kRe', edit_url: 'https://www.canva.com/d/ty-q2EG1mOxdOlm', is_premium: true, price: 6.99, tags: ['corporate','intemporel'], order: 33 },
-        { slug: 'canva-lux-1', name: 'Executive Luxury - Emerald & Gold', description: 'CV ultra-premium pour dirigeants, palette émeraude et or, typographie éditoriale', category: 'Corporate', style: 'canva', preview_url: 'https://design.canva.ai/xzdHD16MCECg0m0', edit_url: 'https://www.canva.com/d/F5iLSfkuqxh1em7', is_premium: true, price: 9.99, tags: ['luxe','dirigeant'], order: 40 },
-        { slug: 'canva-lux-2', name: 'Executive Luxury - Burgundy', description: 'Design éditorial bordeaux et crème, qualité magazine pour cadres senior', category: 'Corporate', style: 'canva', preview_url: 'https://design.canva.ai/jH9G4BnswLY5O--', edit_url: 'https://www.canva.com/d/RX6c5uHjSaXhbv8', is_premium: true, price: 9.99, tags: ['luxe','éditorial'], order: 41 },
-        { slug: 'canva-lux-3', name: 'Executive Luxury - Rose Gold', description: 'Anthracite et or rose, raffinement absolu', category: 'Corporate', style: 'canva', preview_url: 'https://design.canva.ai/tEYOk0iHQ5GnA2X', edit_url: 'https://www.canva.com/d/m4jQvdHIU87tbsY', is_premium: true, price: 9.99, tags: ['luxe','or rose'], order: 42 },
-        { slug: 'canva-lux-4', name: 'Executive Luxury - Navy & Silver', description: 'Marine et argent, élégance Monocle/Economist pour direction', category: 'Corporate', style: 'canva', preview_url: 'https://design.canva.ai/XzBUV3tBuqgBYHz', edit_url: 'https://www.canva.com/d/FDKZp3tZ4uH2TeJ', is_premium: true, price: 9.99, tags: ['luxe','marine'], order: 43 },
-        { slug: 'canva-medical',     name: 'Médical / Santé',     description: 'CV pour médecins, infirmiers, professions de santé', category: 'Santé', style: 'canva', preview_url: 'https://design.canva.ai/Ii-6iqqb8eoYZez', edit_url: 'https://www.canva.com/d/4FaMk--pSwR_4pJ', is_premium: true, price: 7.99, tags: ['médical','santé'], order: 50 },
-        { slug: 'canva-legal',       name: 'Juridique / Avocat',  description: 'CV classique raffiné pour avocats, juristes', category: 'Juridique', style: 'canva', preview_url: 'https://design.canva.ai/ybbDZMNKGvkqakU', edit_url: 'https://www.canva.com/d/8O3LpFsxZRQFfof', is_premium: true, price: 7.99, tags: ['juridique','avocat'], order: 51 },
-        { slug: 'canva-architecture',name: 'Architecte / Designer',description: 'Grille architecturale minimaliste, monochrome avec accent unique', category: 'Architecture', style: 'canva', preview_url: 'https://design.canva.ai/uZh0I2XBbmm1GE1', edit_url: 'https://www.canva.com/d/JguI7i0uA1hK3qp', is_premium: true, price: 7.99, tags: ['architecte','designer'], order: 52 },
-        { slug: 'canva-academic',    name: 'Académique / Doctorat',description: 'CV scientifique pour chercheurs, doctorants, enseignants', category: 'Académique', style: 'canva', preview_url: 'https://design.canva.ai/7RgVaunroDCGSjd', edit_url: 'https://www.canva.com/d/I4VXE5R67q59jPs', is_premium: true, price: 7.99, tags: ['académique','recherche'], order: 53 },
       ];
       for (const t of templates) {
         await query(
