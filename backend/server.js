@@ -16,6 +16,7 @@ const authRoutes        = require('./routes/auth');
 const mediaRoutes       = require('./routes/media');
 const testimonialsRoutes = require('./routes/testimonials');
 const publicUploadsRoutes = require('./routes/public-uploads');
+const analyticsRoutes = require('./routes/analytics');
 const { healthcheck }  = require('./db');
 
 const app = express();
@@ -56,6 +57,7 @@ app.use('/api/auth',         authRoutes);
 app.use('/api/media',        mediaRoutes);
 app.use('/api/testimonials', testimonialsRoutes);
 app.use('/api/public-uploads', publicUploadsRoutes);
+app.use('/api/track',          analyticsRoutes);
 // Serve uploaded files
 app.use('/uploads', express.static(require('path').join(__dirname, 'public', 'uploads'), { maxAge: '7d' }));
 

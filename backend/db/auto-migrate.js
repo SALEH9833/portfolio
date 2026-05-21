@@ -24,6 +24,18 @@ async function autoMigrate() {
     // Idempotent ALTERs (colonnes ajoutées au fil du temps)
     await query('ALTER TABLE profile ADD COLUMN IF NOT EXISTS whatsapp TEXT');
 
+    // Page visits tracking (one row per visit, deduplicated by IP+day in stats)
+    await query(`CREATE TABLE IF NOT EXISTS page_views (
+      id BIGSERIAL PRIMARY KEY,
+      path TEXT NOT NULL,
+      ip TEXT,
+      user_agent TEXT,
+      referer TEXT,
+      visited_at TIMESTAMPTZ DEFAULT NOW()
+    )`);
+    await query('CREATE INDEX IF NOT EXISTS idx_page_views_visited_at ON page_views(visited_at)');
+    await query('CREATE INDEX IF NOT EXISTS idx_page_views_ip_day ON page_views(ip, (visited_at::date))');
+
     await query(`CREATE TABLE IF NOT EXISTS users (
       id SERIAL PRIMARY KEY,
       email TEXT UNIQUE NOT NULL,
