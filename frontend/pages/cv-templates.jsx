@@ -351,6 +351,18 @@ export default function CVTemplatesGallery({ templates: initial }) {
                       </div>
                     )}
                     <div className="mt-4 flex gap-2">
+                      {t.preview_url && (
+                        <a
+                          href={t.preview_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn py-2 px-3 text-xs"
+                          style={{ background: 'var(--surface-2)', color: 'var(--text)', border: '1px solid var(--border)', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                          aria-label={`Aperçu ${t.name}`}
+                        >
+                          <Icon.Eye size={12} /> Aperçu
+                        </a>
+                      )}
                       {t.is_premium ? (
                         <PremiumButton template={t} />
                       ) : (

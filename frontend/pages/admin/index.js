@@ -114,16 +114,20 @@ function OverviewPanel({ stats }) {
   if (!stats) return <div className="flex justify-center py-10"><div className="spinner" /></div>;
 
   const cards = [
-    { label: 'Projets',     value: stats.projects,    icon: 'Code',       color: 'var(--accent)' },
-    { label: 'Compétences', value: stats.skills,      icon: 'Tool',       color: 'var(--sage)' },
-    { label: 'Expériences', value: stats.experience,  icon: 'Briefcase',  color: 'var(--accent-light)' },
-    { label: 'Messages',    value: stats.messages,    icon: 'Mail',       color: 'var(--accent-dark)' },
-    { label: 'Non lus',     value: stats.unread,      icon: 'Sparkles',   color: 'var(--coral)' },
+    { label: 'Inscrits',       value: stats.users ?? 0,          icon: 'Users',      color: 'var(--accent)' },
+    { label: 'Vérifiés',       value: stats.users_verified ?? 0, icon: 'Check',      color: 'var(--sage)' },
+    { label: 'Ventes CV',      value: stats.sales ?? 0,          icon: 'ShoppingCart', color: 'var(--accent-light)' },
+    { label: 'Témoignages',    value: stats.testimonials ?? 0,   icon: 'Heart',      color: 'var(--coral)' },
+    { label: 'Projets',        value: stats.projects,            icon: 'Code',       color: 'var(--accent)' },
+    { label: 'Compétences',    value: stats.skills,              icon: 'Tool',       color: 'var(--sage)' },
+    { label: 'Expériences',    value: stats.experience,          icon: 'Briefcase',  color: 'var(--accent-light)' },
+    { label: 'Messages',       value: stats.messages,            icon: 'Mail',       color: 'var(--accent-dark)' },
+    { label: 'Msg non lus',    value: stats.unread,              icon: 'Sparkles',   color: 'var(--coral)' },
   ];
 
   return (
     <>
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
         {cards.map(c => {
           const IconC = Icon[c.icon];
           return (

@@ -41,16 +41,25 @@ router.get('/me', requireAuth, (req, res) => {
 
 router.get('/stats', requireAuth, async (req, res, next) => {
   try {
-    const [pr, ex, sk, ms, un] = await Promise.all([
+    const [pr, ex, sk, ms, un, us, uv, sa, te] = await Promise.all([
       query('SELECT COUNT(*)::int AS n FROM projects'),
       query('SELECT COUNT(*)::int AS n FROM experience'),
       query('SELECT COUNT(*)::int AS n FROM skills'),
       query('SELECT COUNT(*)::int AS n FROM contact_messages'),
       query('SELECT COUNT(*)::int AS n FROM contact_messages WHERE is_read = FALSE'),
+      query("SELECT COUNT(*)::int AS n FROM users").catch(() => ({ rows: [{ n: 0 }] })),
+      query("SELECT COUNT(*)::int AS n FROM users WHERE email_verified = TRUE").catch(() => ({ rows: [{ n: 0 }] })),
+      query("SELECT COUNT(*)::int AS n FROM cv_template_purchases WHERE status = 'completed'").catch(() => ({ rows: [{ n: 0 }] })),
+      query('SELECT COUNT(*)::int AS n FROM testimonials').catch(() => ({ rows: [{ n: 0 }] })),
     ]);
     res.json({
       success: true,
-      data: { projects: pr.rows[0].n, experience: ex.rows[0].n, skills: sk.rows[0].n, messages: ms.rows[0].n, unread: un.rows[0].n },
+      data: {
+        projects: pr.rows[0].n, experience: ex.rows[0].n, skills: sk.rows[0].n,
+        messages: ms.rows[0].n, unread: un.rows[0].n,
+        users: us.rows[0].n, users_verified: uv.rows[0].n,
+        sales: sa.rows[0].n, testimonials: te.rows[0].n,
+      },
     });
   } catch (err) { next(err); }
 });

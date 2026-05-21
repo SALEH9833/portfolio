@@ -235,6 +235,34 @@ async function autoMigrate() {
       console.error('[Migrate] CV check failed:', e.message);
     }
 
+    // Add Portfolio project if missing (idempotent)
+    try {
+      const portfolioExists = await query("SELECT id FROM projects WHERE slug = 'portfolio' LIMIT 1");
+      if (!portfolioExists.rows.length) {
+        await query(
+          `INSERT INTO projects (slug, title, subtitle, description, long_description, category, highlights, tech, color, icon, github_url, featured, display_order)
+           VALUES ('portfolio', 'Portfolio Personnel',
+             $1::jsonb, $2::jsonb, $3::jsonb,
+             'Full-Stack',
+             $4::jsonb,
+             ARRAY['Next.js','Express','PostgreSQL','Claude API','PayPal','Tailwind'],
+             '#c8a96e', 'code',
+             'https://github.com/SALEH9833/portfolio',
+             true, 3
+           )`,
+          [
+            JSON.stringify({fr:'Site personnel avec marketplace CV & chatbot IA', en:'Personal site with CV marketplace & AI chatbot', ar:'موقع شخصي مع متجر CV ومحادثة ذكاء اصطناعي'}),
+            JSON.stringify({fr:"Portfolio full-stack avec marketplace de templates CV (29 modèles), chatbot intelligent propulsé par Claude API, paiements PayPal, multilingue FR/EN/AR.", en:"Full-stack portfolio with CV templates marketplace (29 designs), Claude API chatbot, PayPal payments, FR/EN/AR i18n.", ar:"موقع شخصي شامل مع متجر قوالب السيرة الذاتية (29 تصميم)، شات بوت ذكي مدعوم بـ Claude API، مدفوعات PayPal، متعدد اللغات."}),
+            JSON.stringify({fr:"Plateforme construite avec Next.js (SSR) déployée sur Vercel, et un backend Express + PostgreSQL hébergé sur Railway. Le marketplace de CV propose 10 modèles gratuits (builders intégrés) et 19 designs premium Canva avec paiement et livraison automatisée. Le chatbot utilise Claude Opus 4.7 pour répondre aux visiteurs en 3 langues.", en:"Built with Next.js (SSR) on Vercel and Express + PostgreSQL on Railway. The CV marketplace offers 10 free in-site builders and 19 premium Canva designs with automated checkout. The chatbot is powered by Claude Opus 4.7 and answers in 3 languages.", ar:"تم بناؤه باستخدام Next.js على Vercel و Express + PostgreSQL على Railway. يوفر متجر السير الذاتية 10 قوالب مجانية و 19 تصميم Canva مميز مع دفع آلي. الشات بوت يعمل بـ Claude Opus 4.7."}),
+            JSON.stringify({fr:["Marketplace de 29 modèles CV (10 gratuits + 19 premium Canva)","Chatbot Claude API multilingue","Paiement PayPal + livraison automatisée","Authentification JWT (admin + utilisateurs)","Sync CV cloud + vérification email"], en:["29-template CV marketplace (10 free + 19 premium)","Claude-powered multilingual chatbot","PayPal checkout + automated delivery","JWT auth (admin + users)","Cloud CV sync + email verification"], ar:["متجر 29 قالب CV (10 مجاني + 19 مميز)","شات بوت متعدد اللغات بـ Claude","دفع PayPal مع تسليم آلي","مصادقة JWT","مزامنة سحابية للسير الذاتية"]}),
+          ]
+        );
+        console.log('[Migrate] ✅ Portfolio project added');
+      }
+    } catch (e) {
+      console.error('[Migrate] Portfolio project insert failed:', e.message);
+    }
+
     console.log('[Migrate] All tables ready');
   } catch (err) {
     console.error('[Migrate] Failed:', err.message);
