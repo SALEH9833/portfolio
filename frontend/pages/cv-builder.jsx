@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import toast from 'react-hot-toast';
@@ -14,6 +15,7 @@ const API = process.env.NEXT_PUBLIC_BACKEND_URL;
 const STORAGE_KEY = 'cv_builder_data_v1';
 const TEMPLATE_KEY = 'cv_builder_template_v1';
 const COLOR_KEY    = 'cv_builder_color_v1';
+const FREE_USED_KEY = 'cv_free_used_v1'; // marks that an anonymous user has already used a free CV
 
 const EMPTY_DATA = {
   personal: { fullName: '', title: '', email: '', phone: '', location: '', linkedin: '', github: '', website: '', photo: '', summary: '' },
@@ -57,6 +59,7 @@ const Btn = ({ children, onClick, variant = 'ghost', className = '', ...rest }) 
 };
 
 export default function CVBuilder() {
+  const router = useRouter();
   const [step, setStep]         = useState(0);
   const [templateId, setTpl]    = useState('modern');
   const [color, setColor]       = useState('#c8a96e');
@@ -72,6 +75,18 @@ export default function CVBuilder() {
   useEffect(() => {
     const logged = userAuth.isLoggedIn();
     setIsLogged(logged);
+
+    // Enforce 1-free-CV rule for anonymous users
+    if (!logged) {
+      try {
+        const used = localStorage.getItem(FREE_USED_KEY);
+        if (used) {
+          toast.error('Tu as déjà utilisé ton CV gratuit. Crée un compte pour continuer.', { duration: 4000 });
+          setTimeout(() => router.replace('/login?next=/cv-builder&reason=free-used'), 1200);
+          return;
+        }
+      } catch {}
+    }
 
     const loadLocal = () => {
       try {
@@ -215,6 +230,12 @@ export default function CVBuilder() {
   const Template = TEMPLATES.find((t) => t.id === templateId)?.component || TEMPLATES[0].component;
   const goPrint = () => {
     setStep(7);
+    // Mark that the (anonymous) user has used their free CV download
+    try {
+      if (!userAuth.isLoggedIn()) {
+        localStorage.setItem(FREE_USED_KEY, JSON.stringify({ at: Date.now() }));
+      }
+    } catch {}
     setTimeout(() => window.print(), 200);
   };
 

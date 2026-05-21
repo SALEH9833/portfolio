@@ -26,6 +26,10 @@ export default function Login() {
     if (userAuth.isLoggedIn()) {
       router.replace((router.query.next) || '/my-cvs');
     }
+    // If user was redirected here because they used their free CV, default to signup mode
+    if (router.query.reason === 'free-used') {
+      setMode('signup');
+    }
   }, [router]);
 
   const submit = async (e) => {
@@ -110,6 +114,12 @@ export default function Login() {
                   : 'Pour acheter et gérer vos modèles CV premium')}
               </p>
             </div>
+
+            {router.query.reason === 'free-used' && phase === 'form' && (
+              <div className="mb-5 p-3 rounded-lg text-xs leading-relaxed" style={{ background: 'rgba(200,169,110,0.12)', color: 'var(--accent)', border: '1px solid var(--accent-glow)' }}>
+                ✨ <strong>Tu as déjà utilisé ton CV gratuit !</strong> Crée un compte pour continuer à créer et sauvegarder tes CV sur ton compte.
+              </div>
+            )}
 
             {/* ===== EMAIL SENT STATE ===== */}
             {phase === 'signup_sent' && (
@@ -212,6 +222,14 @@ export default function Login() {
                 {mode === 'signup' && (
                   <div className="text-2xs leading-relaxed mt-4 p-3 rounded-lg" style={{ background: 'var(--surface-2)', color: 'var(--text-muted)', border: '1px solid var(--border)' }}>
                     <Icon.Mail size={12} className="inline" /> Vous recevrez un email pour confirmer votre adresse avant d'accéder à votre compte.
+                  </div>
+                )}
+
+                {mode === 'signin' && (
+                  <div className="text-center mt-3">
+                    <Link href="/forgot-password" className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                      Mot de passe oublié ?
+                    </Link>
                   </div>
                 )}
 

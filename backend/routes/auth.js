@@ -257,6 +257,129 @@ router.post('/verify-email',
 );
 
 // ============================================================================
+// POST /api/auth/forgot-password — send a password reset email
+// ============================================================================
+async function sendResetPasswordEmail({ toEmail, toName, token }) {
+  const resetUrl = `${FRONTEND_URL}/reset-password?token=${token}`;
+  const subject = `Réinitialisation de votre mot de passe - Portfolio Saleh`;
+  const html = `<!DOCTYPE html>
+<html><body style="font-family:Inter,Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px;color:#1a1a1a;background:#f8f5ef">
+  <div style="background:white;border-radius:12px;padding:30px;box-shadow:0 4px 20px rgba(0,0,0,0.06)">
+    <h1 style="color:#c8a96e;margin:0 0 12px 0;font-family:Georgia,serif">Réinitialisation${toName ? ' - ' + toName : ''}</h1>
+    <p style="font-size:15px;line-height:1.6">
+      Vous avez demandé à réinitialiser votre mot de passe. Cliquez sur le bouton ci-dessous pour choisir un nouveau mot de passe.
+    </p>
+    <p style="text-align:center;margin:28px 0">
+      <a href="${resetUrl}" style="background:#c8a96e;color:#1a1a1a;padding:14px 32px;text-decoration:none;border-radius:8px;font-weight:600;display:inline-block;font-size:15px">
+        Choisir un nouveau mot de passe
+      </a>
+    </p>
+    <p style="font-size:13px;color:#666;line-height:1.6">
+      Ce lien expire dans <strong>1 heure</strong>. Si vous n'avez pas demandé cette réinitialisation, ignorez cet email.
+    </p>
+    <p style="font-size:12px;font-family:monospace;background:#f8f5ef;padding:10px;border-radius:6px;word-break:break-all;color:#666">
+      ${resetUrl}
+    </p>
+  </div>
+</body></html>`;
+  const text = `Réinitialisation de votre mot de passe\n\nCliquez sur ce lien pour choisir un nouveau mot de passe :\n${resetUrl}\n\nCe lien expire dans 1 heure. Si vous n'avez pas demandé cette réinitialisation, ignorez cet email.`;
+
+  if (process.env.BREVO_API_KEY) {
+    try {
+      const axios = require('axios');
+      const senderEmail = process.env.BREVO_SENDER_EMAIL || 'noreply@salehmahamatsaleh.com';
+      const senderName  = process.env.BREVO_SENDER_NAME  || 'Portfolio Saleh';
+      await axios.post(
+        'https://api.brevo.com/v3/smtp/email',
+        { sender: { email: senderEmail, name: senderName }, to: [{ email: toEmail, name: toName || toEmail }], subject, htmlContent: html, textContent: text },
+        { headers: { 'api-key': process.env.BREVO_API_KEY, 'Content-Type': 'application/json' }, timeout: 10000 }
+      );
+      console.log(`[Auth] Reset password email sent to ${toEmail} via Brevo`);
+      return true;
+    } catch (err) {
+      console.error('[Auth] Brevo reset email failed:', err.response?.data || err.message);
+      return false;
+    }
+  }
+  return false;
+}
+
+router.post('/forgot-password',
+  resendLimiter,
+  body('email').trim().toLowerCase().isEmail(),
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(422).json({ error: 'Email invalide' });
+    const { email } = req.body;
+
+    try {
+      const { rows } = await query('SELECT id, email, name FROM users WHERE email = $1', [email]);
+      // Always respond OK to avoid leaking which emails exist
+      if (!rows.length) {
+        return res.json({ success: true, message: 'Si cet email existe dans notre base, un lien de réinitialisation vient d\'être envoyé.' });
+      }
+      const user = rows[0];
+      const token = crypto.randomBytes(32).toString('hex');
+      const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+      await query('UPDATE users SET reset_token = $1, reset_expires_at = $2 WHERE id = $3', [token, expiresAt, user.id]);
+
+      // Fire-and-forget email
+      sendResetPasswordEmail({ toEmail: user.email, toName: user.name, token })
+        .catch(err => console.error('[Auth] Reset email background error:', err.message));
+
+      res.json({ success: true, message: 'Un lien de réinitialisation vient d\'être envoyé à votre email.' });
+    } catch (err) {
+      console.error('[Auth] forgot-password error:', err.message);
+      res.status(500).json({ error: 'Erreur serveur' });
+    }
+  }
+);
+
+// ============================================================================
+// POST /api/auth/reset-password — apply new password using reset token
+// ============================================================================
+router.post('/reset-password',
+  body('token').trim().isLength({ min: 16, max: 128 }),
+  body('newPassword').isLength({ min: 6, max: 200 }),
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(422).json({ error: 'Token invalide ou mot de passe trop court (min 6 caractères)' });
+    const { token, newPassword } = req.body;
+
+    try {
+      const { rows } = await query(
+        'SELECT id, email, name, reset_expires_at FROM users WHERE reset_token = $1',
+        [token]
+      );
+      if (!rows.length) return res.status(404).json({ error: 'Lien invalide ou déjà utilisé.' });
+
+      const user = rows[0];
+      if (new Date(user.reset_expires_at) < new Date()) {
+        return res.status(410).json({ error: 'Lien expiré. Demandez un nouveau lien.' });
+      }
+
+      const newHash = await bcrypt.hash(newPassword, 12);
+      await query(
+        'UPDATE users SET password_hash = $1, reset_token = NULL, reset_expires_at = NULL, email_verified = TRUE WHERE id = $2',
+        [newHash, user.id]
+      );
+
+      // Auto-login after reset
+      const newToken = signToken({ id: user.id, email: user.email, kind: 'user' });
+      res.json({
+        success: true,
+        message: 'Mot de passe réinitialisé.',
+        token: newToken,
+        user: { id: user.id, email: user.email, name: user.name },
+      });
+    } catch (err) {
+      console.error('[Auth] reset-password error:', err.message);
+      res.status(500).json({ error: 'Erreur serveur' });
+    }
+  }
+);
+
+// ============================================================================
 // POST /api/auth/resend-verification — resend verification email
 // ============================================================================
 router.post('/resend-verification',

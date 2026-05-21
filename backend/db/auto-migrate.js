@@ -37,6 +37,10 @@ async function autoMigrate() {
     )`);
     await query('CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)');
     await query('CREATE INDEX IF NOT EXISTS idx_users_verification_token ON users(verification_token)');
+    // Password reset columns
+    await query('ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token TEXT');
+    await query('ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_expires_at TIMESTAMPTZ');
+    await query('CREATE INDEX IF NOT EXISTS idx_users_reset_token ON users(reset_token)');
 
     await query(`CREATE TABLE IF NOT EXISTS cv_templates (
       id SERIAL PRIMARY KEY,
