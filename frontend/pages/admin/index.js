@@ -10,6 +10,7 @@ import ProfileEditor from '../../components/admin/ProfileEditor';
 import EntityManager from '../../components/admin/EntityManager';
 import SalesPanel    from '../../components/admin/SalesPanel';
 import MediaPanel    from '../../components/admin/MediaPanel';
+import DeliveryPanel from '../../components/admin/DeliveryPanel';
 import { Section } from '../../components/admin/AdminUI';
 
 const API = process.env.NEXT_PUBLIC_BACKEND_URL;
@@ -31,6 +32,7 @@ const NAV = [
   { id: 'cv_templates',     label: 'Modèles CV',       icon: 'Award' },
   { id: 'testimonials',     label: 'Témoignages',      icon: 'Heart' },
   { id: 'media',            label: 'Médias / Photos',  icon: 'Eye' },
+  { id: 'delivery',         label: 'Livraison CV',     icon: 'Send' },
   { id: 'sales',            label: 'Ventes',           icon: 'Sparkles' },
   { id: 'messages',         label: 'Messages',         icon: 'Mail',     badge: 'unread' },
 ];
@@ -220,6 +222,7 @@ export default function AdminDashboard() {
     if (tab === 'messages') return <MessagesPanel />;
     if (tab === 'sales')    return <SalesPanel />;
     if (tab === 'media')    return <MediaPanel />;
+    if (tab === 'delivery') return <DeliveryPanel />;
     return <EntityManager table={tab} key={tab} />;
   };
 

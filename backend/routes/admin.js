@@ -220,6 +220,91 @@ router.put('/entities/:table/:id', requireAuth, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// ============================================================================
+// POST /api/admin/deliver-template — sends the Canva edit link to a buyer via email
+// ============================================================================
+router.post('/deliver-template', requireAuth, async (req, res, next) => {
+  const { templateId, buyerEmail, buyerName, paypalAmount } = req.body;
+  if (!templateId || !buyerEmail) return res.status(422).json({ error: 'templateId et buyerEmail requis' });
+
+  try {
+    const { rows } = await query('SELECT name, edit_url, price, currency FROM cv_templates WHERE id = $1', [parseInt(templateId)]);
+    if (!rows.length) return res.status(404).json({ error: 'Modèle introuvable' });
+    const tpl = rows[0];
+    if (!tpl.edit_url) return res.status(400).json({ error: 'Ce modèle n\'a pas d\'URL Canva configurée' });
+
+    const name = (buyerName || '').trim();
+    const subject = `Votre modèle CV : ${tpl.name} — Lien Canva`;
+    const html = `<!DOCTYPE html>
+<html><body style="font-family:Inter,Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px;color:#1a1a1a;background:#f8f5ef">
+  <div style="background:white;border-radius:12px;padding:30px;box-shadow:0 4px 20px rgba(0,0,0,0.06)">
+    <h1 style="color:#c8a96e;margin:0 0 12px 0;font-family:Georgia,serif">Merci ${name || 'pour votre achat'} !</h1>
+    <p style="font-size:15px;line-height:1.6">
+      Votre modèle <strong>${tpl.name}</strong> est prêt à être personnalisé.
+    </p>
+    <p style="text-align:center;margin:28px 0">
+      <a href="${tpl.edit_url}" style="background:#c8a96e;color:#1a1a1a;padding:14px 32px;text-decoration:none;border-radius:8px;font-weight:600;display:inline-block;font-size:15px">
+        Ouvrir mon CV dans Canva
+      </a>
+    </p>
+    <p style="font-size:13px;color:#666;line-height:1.6">
+      Avec ce lien, vous pouvez :
+    </p>
+    <ul style="font-size:13px;color:#666;line-height:1.8;padding-left:18px">
+      <li>Modifier le texte (nom, expérience, formation...)</li>
+      <li>Changer les couleurs et la typographie</li>
+      <li>Télécharger en PDF haute qualité (gratuit chez Canva)</li>
+    </ul>
+    <p style="font-size:13px;color:#666;line-height:1.6;margin-top:24px">
+      Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :
+    </p>
+    <p style="font-size:12px;font-family:monospace;background:#f8f5ef;padding:10px;border-radius:6px;word-break:break-all;color:#666">
+      ${tpl.edit_url}
+    </p>
+    <hr style="border:none;border-top:1px solid #eee;margin:30px 0 16px 0"/>
+    <p style="font-size:12px;color:#aaa;margin:0">
+      Une question ? Répondez simplement à cet email.
+    </p>
+    <p style="font-size:12px;color:#aaa;margin:8px 0 0 0">
+      Saleh Mahamat Saleh — <a href="https://salehmahamatsaleh.com" style="color:#c8a96e">salehmahamatsaleh.com</a>
+    </p>
+  </div>
+</body></html>`;
+    const text = `Merci ${name || 'pour votre achat'} !\n\nVotre modèle "${tpl.name}" est prêt.\n\nOuvrez votre CV dans Canva :\n${tpl.edit_url}\n\nAvec ce lien, vous pouvez modifier le texte, les couleurs, et télécharger en PDF.\n\nUne question ? Répondez à cet email.\n\nSaleh Mahamat Saleh\nhttps://salehmahamatsaleh.com`;
+
+    // Send via Brevo
+    if (!process.env.BREVO_API_KEY) return res.status(500).json({ error: 'Brevo non configuré sur le serveur' });
+    const axios = require('axios');
+    const senderEmail = process.env.BREVO_SENDER_EMAIL || 'noreply@salehmahamatsaleh.com';
+    const senderName  = process.env.BREVO_SENDER_NAME  || 'Portfolio Saleh';
+    await axios.post(
+      'https://api.brevo.com/v3/smtp/email',
+      {
+        sender: { email: senderEmail, name: senderName },
+        to:     [{ email: buyerEmail, name: name || buyerEmail }],
+        subject, htmlContent: html, textContent: text,
+      },
+      { headers: { 'api-key': process.env.BREVO_API_KEY, 'Content-Type': 'application/json', accept: 'application/json' }, timeout: 10000 }
+    );
+
+    // Log the manual delivery as a completed sale
+    try {
+      await query(
+        `INSERT INTO cv_template_purchases (template_id, template_slug, template_name, paypal_order_id, payer_email, payer_name, amount, currency, status, canva_edit_url, delivered_at)
+         VALUES ($1, (SELECT slug FROM cv_templates WHERE id = $1), $2, $3, $4, $5, $6, $7, 'completed', $8, NOW())`,
+        [parseInt(templateId), tpl.name, `manual-${Date.now()}`, buyerEmail, name || null, paypalAmount || tpl.price, tpl.currency || 'EUR', tpl.edit_url]
+      );
+    } catch (logErr) {
+      console.warn('[Admin] Could not log manual delivery:', logErr.message);
+    }
+
+    res.json({ success: true, message: `Email envoyé à ${buyerEmail}` });
+  } catch (err) {
+    console.error('[Admin] Deliver template failed:', err.response?.data || err.message);
+    res.status(500).json({ error: err.response?.data?.message || err.message || 'Erreur d\'envoi' });
+  }
+});
+
 router.delete('/entities/:table/:id', requireAuth, async (req, res, next) => {
   const table = req.params.table;
   const id = parseInt(req.params.id);
