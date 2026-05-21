@@ -738,8 +738,19 @@ function PayPalModal({ template, onClose }) {
               </p>
             </div>
             {!PAYPAL_CLIENT_ID ? (
-              <div className="p-4 rounded-lg text-sm" style={{ background: 'var(--surface-2)', color: 'var(--coral)' }}>
-                Paiement non configuré sur ce site.
+              <div className="space-y-3">
+                <a
+                  href={`https://paypal.me/${PAYPAL_USER}/${template.price}${(template.currency || 'EUR')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-gold w-full py-3 text-sm"
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                >
+                  Payer {template.price}€ via PayPal
+                </a>
+                <div className="p-3 rounded-lg text-xs leading-relaxed" style={{ background: 'var(--surface-2)', color: 'var(--text-muted)', border: '1px solid var(--border)' }}>
+                  📩 Après le paiement, envoie une capture d'écran à <strong>salehmhtsaleh224@gmail.com</strong> avec ton nom et le modèle choisi. Tu recevras le lien Canva dans l'heure (souvent en quelques minutes).
+                </div>
               </div>
             ) : (
               <div id="paypal-buttons-container" className="min-h-[120px]" />
