@@ -128,7 +128,13 @@ export default function Hero({ profile }) {
               <div className="absolute -inset-1 rounded-full blur-xl pointer-events-none" style={{ background: 'linear-gradient(135deg, var(--accent-glow), transparent 70%)' }} />
 
               <div className="relative w-64 h-64 lg:w-[22rem] lg:h-[22rem] rounded-full overflow-hidden border-2" style={{ borderColor: 'var(--border-hover)', boxShadow: '0 0 80px -20px var(--accent-glow)' }}>
-                <img src={profile?.photo_url || profile?.photoUrl || 'https://avatars.githubusercontent.com/SALEH9833'} alt={profile?.name || 'Saleh'} className="w-full h-full object-cover transition-transform duration-700 hover:scale-105" loading="eager" />
+                {(() => {
+                  const raw = profile?.photo_url || profile?.photoUrl || '';
+                  const backend = process.env.NEXT_PUBLIC_BACKEND_URL || '';
+                  // Relative path starting with /uploads or /images → prefix with backend URL
+                  const src = raw.startsWith('/') ? `${backend}${raw}` : (raw || 'https://avatars.githubusercontent.com/SALEH9833');
+                  return <img src={src} alt={profile?.name || 'Saleh'} className="w-full h-full object-cover transition-transform duration-700 hover:scale-105" loading="eager" />;
+                })()}
               </div>
 
               <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }} className="absolute -top-3 -right-4 lg:-right-8 float-chip flex items-center gap-2.5">
