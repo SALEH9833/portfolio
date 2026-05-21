@@ -65,6 +65,7 @@ export default function CVBuilder() {
 
   const [syncState, setSyncState] = useState('idle'); // idle | syncing | saved | offline
   const [isLogged, setIsLogged]   = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
   const debounceRef = useRef(null);
 
   // Hydrate: prefer DB draft (if logged in) > localStorage > default
@@ -481,9 +482,14 @@ export default function CVBuilder() {
                 <p className="text-sm mb-5 leading-relaxed" style={{ color: 'var(--text-soft)' }}>
                   Votre CV est prêt ! Cliquez sur <strong>Imprimer / Sauvegarder en PDF</strong> ci-dessous. Dans la fenêtre d'impression, choisissez « <em>Enregistrer au format PDF</em> » comme destination.
                 </p>
-                <button onClick={goPrint} className="btn btn-gold py-3 px-5 text-sm w-full mb-3">
-                  <Icon.Download size={14} /> Imprimer / Sauvegarder en PDF
-                </button>
+                <div className="grid gap-2 mb-3">
+                  <button onClick={() => setPreviewOpen(true)} className="btn py-3 px-5 text-sm w-full" style={{ background: 'var(--surface-2)', color: 'var(--text)', border: '1px solid var(--border)' }}>
+                    <Icon.Eye size={14} /> Aperçu plein écran
+                  </button>
+                  <button onClick={goPrint} className="btn btn-gold py-3 px-5 text-sm w-full">
+                    <Icon.Download size={14} /> Imprimer / Sauvegarder en PDF
+                  </button>
+                </div>
                 <div className="text-2xs leading-relaxed p-3 rounded-lg" style={{ background: 'var(--surface-2)', color: 'var(--text-muted)', border: '1px solid var(--border)' }}>
                   💡 Vos données sont sauvegardées <strong>localement dans votre navigateur</strong>. Elles ne sont jamais envoyées à un serveur.
                 </div>
@@ -514,6 +520,69 @@ export default function CVBuilder() {
       <div className="print-only" style={{ display: 'none' }}>
         <Template data={data} color={color} />
       </div>
+
+      {/* Full-screen Preview Modal */}
+      {previewOpen && (
+        <div
+          className="cv-preview-modal"
+          onClick={(e) => { if (e.target === e.currentTarget) setPreviewOpen(false); }}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 9999,
+            background: 'rgba(0,0,0,0.85)',
+            display: 'flex', flexDirection: 'column',
+            backdropFilter: 'blur(4px)',
+          }}
+        >
+          {/* Toolbar */}
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '12px 20px',
+            background: 'var(--bg)', borderBottom: '1px solid var(--border)',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <Icon.Eye size={16} style={{ color: 'var(--accent)' }} />
+              <strong style={{ color: 'var(--text)', fontSize: '14px' }}>Aperçu plein écran — {data.personal?.fullName || 'Mon CV'}</strong>
+            </div>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                onClick={() => { setPreviewOpen(false); setTimeout(() => window.print(), 200); }}
+                className="btn btn-gold py-2 px-3 text-xs"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+              >
+                <Icon.Download size={12} /> Télécharger en PDF
+              </button>
+              <button
+                onClick={() => setPreviewOpen(false)}
+                className="lang-toggle"
+                style={{ padding: '6px 10px' }}
+                aria-label="Fermer l'aperçu"
+              >
+                <Icon.Close size={14} />
+              </button>
+            </div>
+          </div>
+
+          {/* Scrollable CV at full size */}
+          <div style={{ flex: 1, overflow: 'auto', padding: '24px', display: 'flex', justifyContent: 'center' }}>
+            <div style={{
+              background: 'white',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
+              maxWidth: '100%',
+            }}>
+              <Template data={data} color={color} />
+            </div>
+          </div>
+
+          {/* Hint */}
+          <div style={{
+            padding: '10px 20px',
+            background: 'var(--bg)', borderTop: '1px solid var(--border)',
+            color: 'var(--text-muted)', fontSize: '11px', textAlign: 'center',
+          }}>
+            💡 Vérifie ton CV avant le téléchargement. Clique en dehors ou sur ✕ pour fermer.
+          </div>
+        </div>
+      )}
 
       <style jsx global>{`
         @media print {
