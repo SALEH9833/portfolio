@@ -651,8 +651,7 @@ function PayPalModal({ template, onClose }) {
 
   useEffect(() => {
     if (!PAYPAL_CLIENT_ID) {
-      setErrMsg('Paiement non configuré. Contactez le propriétaire.');
-      setPhase('error');
+      // No PayPal SDK configured — stay on 'paying' phase to show the paypal.me fallback button
       return;
     }
     const SDK_URL = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&currency=${template.currency || 'EUR'}&intent=capture&components=buttons`;
