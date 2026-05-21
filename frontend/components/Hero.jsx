@@ -103,7 +103,7 @@ export default function Hero({ profile }) {
                 {[
                   { href: profile?.github   || 'https://github.com/SALEH9833',          label: 'GitHub',   icon: 'Github' },
                   { href: profile?.linkedin || 'https://linkedin.com/in/Saleh-Mahamat', label: 'LinkedIn', icon: 'LinkedIn' },
-                  { href: `mailto:${profile?.email || 's.mahahatsaleh0043@uca.ac.ma'}`, label: 'Email',    icon: 'Mail' },
+                  { href: `mailto:${profile?.email || 'salehmhtsaleh224@gmail.com'}`, label: 'Email',    icon: 'Mail' },
                 ].map((s) => {
                   const IconC = Icon[s.icon];
                   return (

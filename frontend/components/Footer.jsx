@@ -12,7 +12,7 @@ const LINKS = [
 const SOCIALS = [
   { label: 'GitHub',   href: 'https://github.com/SALEH9833',          icon: 'Github' },
   { label: 'LinkedIn', href: 'https://linkedin.com/in/Saleh-Mahamat', icon: 'LinkedIn' },
-  { label: 'Email',    href: 'mailto:s.mahahatsaleh0043@uca.ac.ma',   icon: 'Mail' },
+  { label: 'Email',    href: 'mailto:salehmhtsaleh224@gmail.com',   icon: 'Mail' },
 ];
 
 export default function Footer() {
@@ -32,11 +32,11 @@ export default function Footer() {
             {t('footer.ctaSub')}
           </p>
           <a
-            href="mailto:s.mahahatsaleh0043@uca.ac.ma"
+            href="mailto:salehmhtsaleh224@gmail.com"
             className="btn btn-gold"
           >
             <Icon.Mail size={16} />
-            s.mahahatsaleh0043@uca.ac.ma
+            salehmhtsaleh224@gmail.com
           </a>
         </div>
 

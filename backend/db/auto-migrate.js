@@ -235,6 +235,15 @@ async function autoMigrate() {
       console.error('[Migrate] CV check failed:', e.message);
     }
 
+    // Force-update profile email to the official address (idempotent)
+    try {
+      await query(
+        "UPDATE profile SET email = 'salehmhtsaleh224@gmail.com' WHERE email IS DISTINCT FROM 'salehmhtsaleh224@gmail.com'"
+      );
+    } catch (e) {
+      console.error('[Migrate] Profile email update failed:', e.message);
+    }
+
     // Add Portfolio project if missing (idempotent)
     try {
       const portfolioExists = await query("SELECT id FROM projects WHERE slug = 'portfolio' LIMIT 1");

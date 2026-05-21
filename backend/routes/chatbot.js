@@ -278,7 +278,7 @@ async function executeTool(name, input, req) {
         });
         await transporter.sendMail({
           from: `"Portfolio Chatbot" <${process.env.EMAIL_USER}>`,
-          to: process.env.EMAIL_TO || 's.mahahatsaleh0043@uca.ac.ma',
+          to: process.env.EMAIL_TO || 'salehmhtsaleh224@gmail.com',
           replyTo: e,
           subject: `[Chatbot] ${s}`,
           text: `Message envoyé via le chatbot du portfolio.\n\nDe : ${n} <${e}>\nSujet : ${s}\n\n${m}`,

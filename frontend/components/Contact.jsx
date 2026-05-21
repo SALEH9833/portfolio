@@ -7,7 +7,7 @@ import Icon from './Icons';
 import { useI18n } from '../lib/i18n';
 
 const INFO = [
-  { label: 'Email',        value: 's.mahahatsaleh0043@uca.ac.ma', href: 'mailto:s.mahahatsaleh0043@uca.ac.ma', icon: 'Mail'  },
+  { label: 'Email',        value: 'salehmhtsaleh224@gmail.com', href: 'mailto:salehmhtsaleh224@gmail.com', icon: 'Mail'  },
   { label: 'Téléphone',    value: '+212 6 46 60 89 11',           href: 'tel:+212646608911',                  icon: 'Phone' },
   { label: 'Localisation', value: 'Safi, Maroc',                  href: null,                                 icon: 'Pin'   },
   { label: 'GitHub',       value: 'github.com/SALEH9833',         href: 'https://github.com/SALEH9833',       icon: 'Github' },
