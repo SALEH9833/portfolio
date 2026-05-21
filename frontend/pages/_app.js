@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { Toaster } from 'react-hot-toast';
+import { Analytics } from '@vercel/analytics/next';
 import { I18nProvider } from '../lib/i18n';
 import { ThemeProvider } from '../lib/theme';
 import '../styles/globals.css';
@@ -45,6 +46,7 @@ export default function App({ Component, pageProps }) {
     <ThemeProvider>
       <I18nProvider>
         <PageTracker />
+        <Analytics />
         <Toaster
           position="bottom-right"
           toastOptions={{
