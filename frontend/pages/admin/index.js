@@ -11,6 +11,7 @@ import EntityManager from '../../components/admin/EntityManager';
 import SalesPanel    from '../../components/admin/SalesPanel';
 import MediaPanel    from '../../components/admin/MediaPanel';
 import DeliveryPanel from '../../components/admin/DeliveryPanel';
+import AccountPanel  from '../../components/admin/AccountPanel';
 import { Section } from '../../components/admin/AdminUI';
 
 const API = process.env.NEXT_PUBLIC_BACKEND_URL;
@@ -35,6 +36,7 @@ const NAV = [
   { id: 'delivery',         label: 'Livraison CV',     icon: 'Send' },
   { id: 'sales',            label: 'Ventes',           icon: 'Sparkles' },
   { id: 'messages',         label: 'Messages',         icon: 'Mail',     badge: 'unread' },
+  { id: 'account',          label: 'Mon compte',       icon: 'Users' },
 ];
 
 function MessagesPanel() {
@@ -223,6 +225,7 @@ export default function AdminDashboard() {
     if (tab === 'sales')    return <SalesPanel />;
     if (tab === 'media')    return <MediaPanel />;
     if (tab === 'delivery') return <DeliveryPanel />;
+    if (tab === 'account')  return <AccountPanel />;
     return <EntityManager table={tab} key={tab} />;
   };
 

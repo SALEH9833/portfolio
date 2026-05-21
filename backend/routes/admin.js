@@ -35,8 +35,55 @@ router.post('/login',
   }
 );
 
-router.get('/me', requireAuth, (req, res) => {
-  res.json({ success: true, user: req.user });
+router.get('/me', requireAuth, async (req, res, next) => {
+  try {
+    const { rows } = await query('SELECT id, username, email FROM admin_users WHERE id = $1', [req.user.id]);
+    if (!rows.length) return res.status(404).json({ error: 'Compte introuvable' });
+    res.json({ success: true, user: rows[0] });
+  } catch (err) { next(err); }
+});
+
+// ============================================================================
+// PUT /api/admin/me — update admin's own username/email
+// ============================================================================
+router.put('/me', requireAuth, async (req, res, next) => {
+  const { username, email } = req.body;
+  if (!username || username.trim().length < 3) return res.status(422).json({ error: 'Username trop court (3+ caractères)' });
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.status(422).json({ error: 'Email invalide' });
+  try {
+    // Check the new username isn't already taken by someone else
+    const conflict = await query('SELECT id FROM admin_users WHERE username = $1 AND id <> $2', [username.trim(), req.user.id]);
+    if (conflict.rows.length) return res.status(409).json({ error: 'Ce nom d\'utilisateur est déjà pris' });
+
+    const { rows } = await query(
+      'UPDATE admin_users SET username = $1, email = $2 WHERE id = $3 RETURNING id, username, email',
+      [username.trim(), email?.trim() || null, req.user.id]
+    );
+    res.json({ success: true, user: rows[0], message: 'Informations mises à jour ✓' });
+  } catch (err) { next(err); }
+});
+
+// ============================================================================
+// PUT /api/admin/me/password — change admin password (requires current password)
+// ============================================================================
+router.put('/me/password', requireAuth, async (req, res, next) => {
+  const { currentPassword, newPassword } = req.body;
+  if (!currentPassword || !newPassword) return res.status(422).json({ error: 'Mot de passe actuel et nouveau requis' });
+  if (newPassword.length < 8) return res.status(422).json({ error: 'Le nouveau mot de passe doit faire au moins 8 caractères' });
+  if (newPassword === currentPassword) return res.status(422).json({ error: 'Le nouveau mot de passe doit être différent de l\'actuel' });
+
+  try {
+    const bcrypt = require('bcryptjs');
+    const { rows } = await query('SELECT password_hash FROM admin_users WHERE id = $1', [req.user.id]);
+    if (!rows.length) return res.status(404).json({ error: 'Compte introuvable' });
+
+    const valid = await bcrypt.compare(currentPassword, rows[0].password_hash);
+    if (!valid) return res.status(401).json({ error: 'Mot de passe actuel incorrect' });
+
+    const newHash = await bcrypt.hash(newPassword, 12);
+    await query('UPDATE admin_users SET password_hash = $1 WHERE id = $2', [newHash, req.user.id]);
+    res.json({ success: true, message: 'Mot de passe changé ✓' });
+  } catch (err) { next(err); }
 });
 
 router.get('/stats', requireAuth, async (req, res, next) => {
