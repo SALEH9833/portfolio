@@ -76,7 +76,32 @@ async function sendVerificationEmail({ toEmail, toName, token }) {
   const subject = `Confirmez votre email — Portfolio Saleh`;
   const text = `Bienvenue${toName ? ` ${toName}` : ''} !\n\nMerci d'avoir créé un compte. Confirmez votre email en cliquant sur ce lien :\n\n${verifyUrl}\n\nCe lien expire dans ${VERIFICATION_TTL_HOURS}h.\n\nSi vous n'avez pas créé ce compte, ignorez cet email.`;
 
-  // Preferred: Resend HTTP API (works on Railway where SMTP is blocked)
+  // Preferred: Brevo HTTP API (300 emails/day free, no domain verification needed)
+  if (process.env.BREVO_API_KEY) {
+    try {
+      const axios = require('axios');
+      const senderEmail = process.env.BREVO_SENDER_EMAIL || 'salehmhtsaleh224@gmail.com';
+      const senderName  = process.env.BREVO_SENDER_NAME  || 'Portfolio Saleh';
+      const r = await axios.post(
+        'https://api.brevo.com/v3/smtp/email',
+        {
+          sender:      { email: senderEmail, name: senderName },
+          to:          [{ email: toEmail, name: toName || toEmail }],
+          subject,
+          htmlContent: html,
+          textContent: text,
+        },
+        { headers: { 'api-key': process.env.BREVO_API_KEY, 'Content-Type': 'application/json', accept: 'application/json' }, timeout: 10000 }
+      );
+      console.log(`[Auth] Verification email sent to ${toEmail} via Brevo (id: ${r.data?.messageId || 'n/a'})`);
+      return true;
+    } catch (err) {
+      console.error('[Auth] Brevo failed:', err.response?.data || err.message);
+      // Fall through to next provider
+    }
+  }
+
+  // Resend HTTP API fallback (works on Railway where SMTP is blocked)
   if (process.env.RESEND_API_KEY) {
     try {
       const axios = require('axios');
