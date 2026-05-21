@@ -12,6 +12,7 @@ import SalesPanel    from '../../components/admin/SalesPanel';
 import MediaPanel    from '../../components/admin/MediaPanel';
 import DeliveryPanel from '../../components/admin/DeliveryPanel';
 import AccountPanel  from '../../components/admin/AccountPanel';
+import UsersPanel    from '../../components/admin/UsersPanel';
 import { Section } from '../../components/admin/AdminUI';
 
 const API = process.env.NEXT_PUBLIC_BACKEND_URL;
@@ -36,6 +37,7 @@ const NAV = [
   { id: 'delivery',         label: 'Livraison CV',     icon: 'Send' },
   { id: 'sales',            label: 'Ventes',           icon: 'Sparkles' },
   { id: 'messages',         label: 'Messages',         icon: 'Mail',     badge: 'unread' },
+  { id: 'users',            label: 'Utilisateurs',     icon: 'Users' },
   { id: 'account',          label: 'Mon compte',       icon: 'Users' },
 ];
 
@@ -226,6 +228,7 @@ export default function AdminDashboard() {
     if (tab === 'media')    return <MediaPanel />;
     if (tab === 'delivery') return <DeliveryPanel />;
     if (tab === 'account')  return <AccountPanel />;
+    if (tab === 'users')    return <UsersPanel />;
     return <EntityManager table={tab} key={tab} />;
   };
 

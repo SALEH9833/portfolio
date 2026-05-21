@@ -86,6 +86,31 @@ router.put('/me/password', requireAuth, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// ============================================================================
+// GET /api/admin/users — list registered users (with verification status)
+// ============================================================================
+router.get('/users', requireAuth, async (req, res, next) => {
+  try {
+    const { rows } = await query(
+      `SELECT id, email, name, email_verified, created_at, last_login
+       FROM users
+       ORDER BY created_at DESC
+       LIMIT 500`
+    ).catch(() => ({ rows: [] }));
+    res.json({ success: true, data: rows });
+  } catch (err) { next(err); }
+});
+
+// DELETE a user account (admin only)
+router.delete('/users/:id', requireAuth, async (req, res, next) => {
+  const id = parseInt(req.params.id);
+  if (isNaN(id)) return res.status(400).json({ error: 'Invalid id' });
+  try {
+    await query('DELETE FROM users WHERE id = $1', [id]);
+    res.json({ success: true });
+  } catch (err) { next(err); }
+});
+
 router.get('/stats', requireAuth, async (req, res, next) => {
   try {
     const [pr, ex, sk, ms, un, us, uv, sa, te] = await Promise.all([

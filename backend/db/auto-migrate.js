@@ -229,6 +229,25 @@ async function autoMigrate() {
       console.error('[Migrate] CV check failed:', e.message);
     }
 
+    // Replace em-dashes (—) with regular dashes (-) in all user-visible texts (one-time normalization)
+    try {
+      await query("UPDATE profile SET title    = REPLACE(title::text,    '—', '-')::jsonb WHERE title::text    LIKE '%—%'");
+      await query("UPDATE profile SET subtitle = REPLACE(subtitle::text, '—', '-')::jsonb WHERE subtitle::text LIKE '%—%'");
+      await query("UPDATE profile SET tagline  = REPLACE(tagline::text,  '—', '-')::jsonb WHERE tagline::text  LIKE '%—%'");
+      await query("UPDATE profile SET bio      = REPLACE(bio::text,      '—', '-')::jsonb WHERE bio::text      LIKE '%—%'");
+      await query("UPDATE experience    SET role        = REPLACE(role::text,        '—', '-')::jsonb WHERE role::text        LIKE '%—%'");
+      await query("UPDATE experience    SET description = REPLACE(description::text, '—', '-')::jsonb WHERE description::text LIKE '%—%'");
+      await query("UPDATE education     SET degree      = REPLACE(degree::text,      '—', '-')::jsonb WHERE degree::text      LIKE '%—%'");
+      await query("UPDATE projects      SET subtitle    = REPLACE(subtitle::text,    '—', '-')::jsonb WHERE subtitle::text    LIKE '%—%'");
+      await query("UPDATE projects      SET description = REPLACE(description::text, '—', '-')::jsonb WHERE description::text LIKE '%—%'");
+      await query("UPDATE activities    SET title       = REPLACE(title::text,       '—', '-')::jsonb WHERE title::text       LIKE '%—%'");
+      await query("UPDATE activities    SET description = REPLACE(description::text, '—', '-')::jsonb WHERE description::text LIKE '%—%'");
+      await query("UPDATE certifications SET name = REPLACE(name, '—', '-') WHERE name LIKE '%—%'");
+      await query("UPDATE skills        SET name = REPLACE(name, '—', '-') WHERE name LIKE '%—%'");
+    } catch (e) {
+      console.warn('[Migrate] Em-dash replacement skipped:', e.message);
+    }
+
     // Force-update profile email to the official address (idempotent)
     try {
       await query(
