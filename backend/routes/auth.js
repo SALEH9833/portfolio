@@ -143,18 +143,16 @@ router.post('/signup',
         [email, hash, name || null, token, expiresAt]
       );
 
-      const emailSent = await sendVerificationEmail({
-        toEmail: email,
-        toName: name,
-        token,
-      });
+      // Fire-and-forget email sending — don't block the HTTP response on SMTP.
+      // The user will know via the toast/UI; if the email never arrives they can request a resend.
+      sendVerificationEmail({ toEmail: email, toName: name, token })
+        .then(ok => console.log(`[Auth] Verification email to ${email}: ${ok ? 'sent' : 'failed'}`))
+        .catch(err => console.error(`[Auth] Verification email error for ${email}:`, err.message));
 
       res.status(201).json({
         success: true,
-        email_sent: emailSent,
-        message: emailSent
-          ? `Un email de confirmation a été envoyé à ${email}. Cliquez sur le lien pour activer votre compte.`
-          : "Compte créé mais l'envoi de l'email de vérification a échoué. Contactez le support.",
+        email_sent: true, // optimistic — the email is being sent in the background
+        message: `Un email de confirmation est en cours d'envoi à ${email}. Cliquez sur le lien pour activer votre compte.`,
         email,
       });
     } catch (err) { next(err); }
