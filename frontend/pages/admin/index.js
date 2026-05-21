@@ -43,6 +43,42 @@ const NAV = [
   { id: 'account',          label: 'Mon compte',       icon: 'Users' },
 ];
 
+// Sidebar grouping — organize the 20+ tabs into logical sections
+const NAV_GROUPS = [
+  {
+    title: 'Tableau de bord',
+    items: ['overview', 'analytics', 'sales'],
+  },
+  {
+    title: 'Mon profil',
+    items: ['profile', 'languages', 'strengths'],
+  },
+  {
+    title: 'Mes compétences',
+    items: ['skill_categories', 'skills', 'tech_stack', 'certifications'],
+  },
+  {
+    title: 'Mon parcours',
+    items: ['experience', 'education', 'projects', 'activities'],
+  },
+  {
+    title: 'Marketplace CV',
+    items: ['cv_templates', 'delivery'],
+  },
+  {
+    title: 'Communauté',
+    items: ['testimonials', 'messages', 'users'],
+  },
+  {
+    title: 'Bibliothèque',
+    items: ['media'],
+  },
+  {
+    title: 'Compte',
+    items: ['account'],
+  },
+];
+
 function MessagesPanel() {
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -269,30 +305,41 @@ export default function AdminDashboard() {
           <AnimatePresence>
             {(sideOpen || true) && (
               <aside className={`${sideOpen ? 'fixed inset-0 z-40 p-4 lg:p-0 lg:static' : 'hidden lg:block'} lg:sticky lg:top-20 lg:self-start`} style={sideOpen ? { background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)' } : {}} onClick={() => sideOpen && setSideOpen(false)}>
-                <nav onClick={(e) => e.stopPropagation()} className="surface p-3 space-y-0.5 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto" style={sideOpen ? { maxWidth: '280px', margin: '4rem auto 0' } : {}}>
-                  {NAV.map(item => {
-                    const IconC = Icon[item.icon];
-                    const isActive = tab === item.id;
-                    const badgeValue = item.badge === 'unread' ? stats?.unread : null;
-                    return (
-                      <button
-                        key={item.id}
-                        onClick={() => { setTab(item.id); setSideOpen(false); refreshStats(); }}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all text-start"
-                        style={{
-                          background:  isActive ? 'var(--accent-glow)' : 'transparent',
-                          color:       isActive ? 'var(--accent)' : 'var(--text-muted)',
-                          fontWeight:  isActive ? 600 : 400,
-                        }}
-                      >
-                        <IconC size={15} />
-                        <span className="flex-1">{item.label}</span>
-                        {badgeValue > 0 && (
-                          <span className="text-2xs px-1.5 rounded-full font-mono" style={{ background: 'var(--coral)', color: 'white' }}>{badgeValue}</span>
-                        )}
-                      </button>
-                    );
-                  })}
+                <nav onClick={(e) => e.stopPropagation()} className="surface p-3 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto" style={sideOpen ? { maxWidth: '280px', margin: '4rem auto 0' } : {}}>
+                  {NAV_GROUPS.map((group, gi) => (
+                    <div key={group.title} className={gi > 0 ? 'mt-4' : ''}>
+                      <div className="text-2xs font-mono uppercase tracking-wider px-3 mb-1.5" style={{ color: 'var(--text-faint)' }}>
+                        {group.title}
+                      </div>
+                      <div className="space-y-0.5">
+                        {group.items.map(id => {
+                          const item = NAV.find(n => n.id === id);
+                          if (!item) return null;
+                          const IconC = Icon[item.icon];
+                          const isActive = tab === item.id;
+                          const badgeValue = item.badge === 'unread' ? stats?.unread : null;
+                          return (
+                            <button
+                              key={item.id}
+                              onClick={() => { setTab(item.id); setSideOpen(false); refreshStats(); }}
+                              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all text-start"
+                              style={{
+                                background:  isActive ? 'var(--accent-glow)' : 'transparent',
+                                color:       isActive ? 'var(--accent)' : 'var(--text-muted)',
+                                fontWeight:  isActive ? 600 : 400,
+                              }}
+                            >
+                              <IconC size={15} />
+                              <span className="flex-1">{item.label}</span>
+                              {badgeValue > 0 && (
+                                <span className="text-2xs px-1.5 rounded-full font-mono" style={{ background: 'var(--coral)', color: 'white' }}>{badgeValue}</span>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
                 </nav>
               </aside>
             )}
