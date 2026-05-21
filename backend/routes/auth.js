@@ -43,27 +43,6 @@ async function requireUser(req, res, next) {
 // Email helper — sends verification email
 // ============================================================================
 async function sendVerificationEmail({ toEmail, toName, token }) {
-  if (
-    !process.env.EMAIL_USER ||
-    !process.env.EMAIL_PASS ||
-    process.env.EMAIL_USER.startsWith('your_') ||
-    process.env.EMAIL_PASS.startsWith('your_')
-  ) {
-    console.warn('[Auth] Email not configured — verification email NOT sent. User can\'t verify.');
-    return false;
-  }
-
-  const nodemailer = require('nodemailer');
-  const port = parseInt(process.env.EMAIL_PORT) || 465;
-  const transporter = nodemailer.createTransport({
-    host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-    port,
-    secure: port === 465, // true for 465 (SSL), false for 587 (STARTTLS)
-    auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
-    connectionTimeout: 10000,
-    socketTimeout: 15000,
-  });
-
   const verifyUrl = `${FRONTEND_URL}/verify-email?token=${token}`;
 
   const html = `<!DOCTYPE html>
@@ -94,18 +73,51 @@ async function sendVerificationEmail({ toEmail, toName, token }) {
   </div>
 </body></html>`;
 
+  const subject = `Confirmez votre email — Portfolio Saleh`;
+  const text = `Bienvenue${toName ? ` ${toName}` : ''} !\n\nMerci d'avoir créé un compte. Confirmez votre email en cliquant sur ce lien :\n\n${verifyUrl}\n\nCe lien expire dans ${VERIFICATION_TTL_HOURS}h.\n\nSi vous n'avez pas créé ce compte, ignorez cet email.`;
+
+  // Preferred: Resend HTTP API (works on Railway where SMTP is blocked)
+  if (process.env.RESEND_API_KEY) {
+    try {
+      const axios = require('axios');
+      const from = process.env.RESEND_FROM || 'Portfolio Saleh <onboarding@resend.dev>';
+      const r = await axios.post(
+        'https://api.resend.com/emails',
+        { from, to: [toEmail], subject, html, text },
+        { headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' }, timeout: 10000 }
+      );
+      console.log(`[Auth] Verification email sent to ${toEmail} via Resend (id: ${r.data?.id || 'n/a'})`);
+      return true;
+    } catch (err) {
+      console.error('[Auth] Resend failed:', err.response?.data || err.message);
+      return false;
+    }
+  }
+
+  // Fallback: SMTP (Gmail) — works locally but Railway blocks outbound SMTP
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS || process.env.EMAIL_USER.startsWith('your_')) {
+    console.warn('[Auth] No email provider configured (set RESEND_API_KEY or EMAIL_USER+EMAIL_PASS)');
+    return false;
+  }
+  const nodemailer = require('nodemailer');
+  const port = parseInt(process.env.EMAIL_PORT) || 465;
+  const transporter = nodemailer.createTransport({
+    host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+    port,
+    secure: port === 465,
+    auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
+    connectionTimeout: 10000,
+    socketTimeout: 15000,
+  });
   try {
     await transporter.sendMail({
       from: `"Portfolio Saleh" <${process.env.EMAIL_USER}>`,
-      to: toEmail,
-      subject: `Confirmez votre email — Portfolio Saleh`,
-      text: `Bienvenue${toName ? ` ${toName}` : ''} !\n\nMerci d'avoir créé un compte. Confirmez votre email en cliquant sur ce lien :\n\n${verifyUrl}\n\nCe lien expire dans ${VERIFICATION_TTL_HOURS}h.\n\nSi vous n'avez pas créé ce compte, ignorez cet email.`,
-      html,
+      to: toEmail, subject, text, html,
     });
-    console.log(`[Auth] Verification email sent to ${toEmail}`);
+    console.log(`[Auth] Verification email sent to ${toEmail} via SMTP`);
     return true;
   } catch (err) {
-    console.error('[Auth] Failed to send verification email:', err.message);
+    console.error('[Auth] SMTP send failed:', err.message);
     return false;
   }
 }
