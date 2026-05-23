@@ -262,7 +262,7 @@ function TestimonialForm({ onSubmitted }) {
       </button>
 
       <p className="text-2xs text-center leading-relaxed" style={{ color: 'var(--text-faint)' }}>
-        Votre avis sera vérifié avant publication. Votre email reste privé.
+        Votre avis sera publié immédiatement sur le site. Votre email reste privé.
       </p>
     </form>
   );

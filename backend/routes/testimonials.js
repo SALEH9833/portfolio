@@ -42,7 +42,7 @@ const photoUploadLimiter = rateLimit({
 
 const submitLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
-  max: 3,
+  max: 10, // 10 testimonials per hour per IP — enough for normal usage
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Trop de soumissions. Réessayez dans 1 heure.' },
@@ -95,9 +95,10 @@ router.post(
       const email     = req.body.email     ? sanitize(req.body.email)     : null;
       const photo_url = req.body.photo_url ? sanitize(req.body.photo_url) : null;
 
+      // Auto-publish: testimonials appear immediately on the site (admin can delete if abusive)
       await query(
         `INSERT INTO testimonials (name, role, company, message, rating, relation, email, photo_url, ip_address, is_approved)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,FALSE)`,
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,TRUE)`,
         [name, role, company, message, rating, relation, email, photo_url, req.ip]
       );
       res.status(201).json({
