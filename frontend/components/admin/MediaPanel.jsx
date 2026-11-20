@@ -11,7 +11,6 @@ const CATEGORIES = [
   { id: 'all',     label: 'Tout' },
   { id: 'profile', label: 'Profil' },
   { id: 'project', label: 'Projets' },
-  { id: 'cv',      label: 'CV' },
   { id: 'general', label: 'Général' },
 ];
 
@@ -90,7 +89,6 @@ export default function MediaPanel() {
               <select value={category} onChange={(e) => setCategory(e.target.value)} className="field">
                 <option value="profile">Profil (photo principale)</option>
                 <option value="project">Projets (images de projets)</option>
-                <option value="cv">CV (images dans les CV)</option>
                 <option value="general">Général</option>
               </select>
             </div>

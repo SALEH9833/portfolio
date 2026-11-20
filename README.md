@@ -1,6 +1,6 @@
 # Saleh Mahamat Saleh — Portfolio
 
-Portfolio personnel + marketplace CV + chatbot IA.
+Portfolio personnel + chatbot IA + espace admin.
 **Production : https://salehmahamatsaleh.com**
 
 ## Stack
@@ -8,7 +8,6 @@ Portfolio personnel + marketplace CV + chatbot IA.
 - **Frontend** : Next.js 14 (SSR) · Tailwind · Framer Motion → déployé sur **Vercel**
 - **Backend** : Express + PostgreSQL → déployé sur **Railway**
 - **IA** : Claude API (chatbot intelligent)
-- **Paiement** : PayPal (Smart Buttons / paypal.me)
 - **DNS** : Cloudflare Registrar
 
 ## Développement local
@@ -74,7 +73,6 @@ Voir `backend/.env.example` et `frontend/.env.local.example`.
 3. **Environment Variables** :
    - `BACKEND_URL=https://api.salehmahamatsaleh.com`
    - `NEXT_PUBLIC_BACKEND_URL=https://api.salehmahamatsaleh.com`
-   - `NEXT_PUBLIC_PAYPAL_ME=salehmahamatsaleh01`
 4. **Deploy**
 5. **Domains** → ajouter `salehmahamatsaleh.com` + `www.salehmahamatsaleh.com`
 
@@ -93,13 +91,13 @@ Dans **DNS Settings** du domaine :
 ```
 portfolio/
 ├── frontend/                    # Next.js app
-│   ├── pages/                   # Routes (index, admin, cv-builder, cv-templates, login, my-cvs, verify-email)
+│   ├── pages/                   # Routes (index, admin, sitemap)
 │   ├── components/              # React components
 │   │   └── admin/               # Admin-specific UI (editors, panels)
-│   ├── lib/                     # i18n, theme, user-auth
-│   └── styles/                  # globals.css + cv-templates.css
+│   ├── lib/                     # i18n, theme
+│   └── styles/                  # globals.css
 └── backend/                     # Express API
-    ├── routes/                  # admin, chatbot, auth, payments, cv-templates, testimonials, media, ...
+    ├── routes/                  # admin, chatbot, contact, profile, projects, testimonials, media, analytics, ...
     ├── middleware/              # security, auth
     ├── db/                      # PostgreSQL access + schema + auto-migrate + seeds
     └── public/                  # static files (images, uploads, files)
@@ -111,7 +109,7 @@ URL : `/admin/login`
 Credentials : variables `ADMIN_USERNAME` / `ADMIN_PASSWORD`
 
 Onglets disponibles :
-- Vue d'ensemble · Profil · Médias · Modèles CV · Témoignages · Ventes · Messages
+- Vue d'ensemble · Visiteurs · Profil · Médias · Témoignages · Messages
 - Édition CRUD pour : profil, projets, compétences, expérience, formation, langues, certifications, activités, etc.
 
 ## License

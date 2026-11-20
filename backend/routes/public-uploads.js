@@ -1,5 +1,5 @@
 // Public photo uploads — no auth required, but heavily rate-limited and size-capped.
-// Used by: CV Builder (visitor photo), Testimonials (reviewer photo).
+// Used by: Testimonials (reviewer photo).
 const express = require('express');
 const router = express.Router();
 const rateLimit = require('express-rate-limit');
@@ -34,14 +34,6 @@ function makeUploader(subdir) {
   });
 }
 
-const cvLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000,
-  max: 10,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { error: 'Trop d\'uploads de photo. Réessayez dans 1 heure.' },
-});
-
 const testiLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   max: 5,
@@ -50,7 +42,6 @@ const testiLimiter = rateLimit({
   message: { error: 'Trop d\'uploads de photo. Réessayez dans 1 heure.' },
 });
 
-const cvUpload    = makeUploader('cv-photos');
 const testiUpload = makeUploader('testimonials');
 
 function handleUpload(req, res, subdir) {
@@ -58,14 +49,6 @@ function handleUpload(req, res, subdir) {
   const url = `/uploads/${subdir}/${req.file.filename}`;
   res.status(201).json({ success: true, url });
 }
-
-// CV builder photo
-router.post('/cv-photo', cvLimiter, (req, res) => {
-  cvUpload.single('photo')(req, res, (err) => {
-    if (err) return res.status(400).json({ error: err.message || 'Erreur d\'upload' });
-    handleUpload(req, res, 'cv-photos');
-  });
-});
 
 // Testimonial photo
 router.post('/testimonial-photo', testiLimiter, (req, res) => {
