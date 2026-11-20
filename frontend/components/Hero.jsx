@@ -88,14 +88,6 @@ export default function Hero({ profile }) {
               <MagneticButton onClick={() => scrollTo('projects')} className="btn btn-ghost">
                 {t('hero.seeProjects')}
               </MagneticButton>
-              <MagneticButton
-                onClick={() => window.location.href = '/cv-templates'}
-                className="btn btn-ghost"
-                style={{ borderColor: 'var(--accent)' }}
-              >
-                <Icon.Download size={16} />
-                {t('hero.buildCv') || 'Créez votre CV pro'}
-              </MagneticButton>
             </motion.div>
 
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.85 }} className="flex items-center gap-5">

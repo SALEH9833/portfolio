@@ -8,11 +8,8 @@ import Icon from '../../components/Icons';
 import ThemeToggle from '../../components/ThemeToggle';
 import ProfileEditor from '../../components/admin/ProfileEditor';
 import EntityManager from '../../components/admin/EntityManager';
-import SalesPanel    from '../../components/admin/SalesPanel';
 import MediaPanel    from '../../components/admin/MediaPanel';
-import DeliveryPanel from '../../components/admin/DeliveryPanel';
 import AccountPanel  from '../../components/admin/AccountPanel';
-import UsersPanel    from '../../components/admin/UsersPanel';
 import AnalyticsPanel from '../../components/admin/AnalyticsPanel';
 import { Section } from '../../components/admin/AdminUI';
 
@@ -32,22 +29,18 @@ const NAV = [
   { id: 'experience',       label: 'Expérience',       icon: 'Briefcase' },
   { id: 'education',        label: 'Formation',        icon: 'GraduationCap' },
   { id: 'activities',       label: 'Activités',        icon: 'Music' },
-  { id: 'cv_templates',     label: 'Modèles CV',       icon: 'Award' },
   { id: 'testimonials',     label: 'Témoignages',      icon: 'Heart' },
   { id: 'media',            label: 'Médias / Photos',  icon: 'Eye' },
-  { id: 'delivery',         label: 'Livraison CV',     icon: 'Send' },
-  { id: 'sales',            label: 'Ventes',           icon: 'Sparkles' },
   { id: 'messages',         label: 'Messages',         icon: 'Mail',     badge: 'unread' },
   { id: 'analytics',        label: 'Visiteurs',        icon: 'Eye' },
-  { id: 'users',            label: 'Utilisateurs',     icon: 'Users' },
   { id: 'account',          label: 'Mon compte',       icon: 'Users' },
 ];
 
-// Sidebar grouping — organize the 20+ tabs into logical sections
+// Sidebar grouping — organize the tabs into logical sections
 const NAV_GROUPS = [
   {
     title: 'Tableau de bord',
-    items: ['overview', 'analytics', 'sales'],
+    items: ['overview', 'analytics'],
   },
   {
     title: 'Mon profil',
@@ -62,12 +55,8 @@ const NAV_GROUPS = [
     items: ['experience', 'education', 'projects', 'activities'],
   },
   {
-    title: 'Marketplace CV',
-    items: ['cv_templates', 'delivery'],
-  },
-  {
     title: 'Communauté',
-    items: ['testimonials', 'messages', 'users'],
+    items: ['testimonials', 'messages'],
   },
   {
     title: 'Bibliothèque',
@@ -158,9 +147,6 @@ function OverviewPanel({ stats }) {
   if (!stats) return <div className="flex justify-center py-10"><div className="spinner" /></div>;
 
   const cards = [
-    { label: 'Inscrits',       value: stats.users ?? 0,          icon: 'Users',      color: 'var(--accent)' },
-    { label: 'Vérifiés',       value: stats.users_verified ?? 0, icon: 'Check',      color: 'var(--sage)' },
-    { label: 'Ventes CV',      value: stats.sales ?? 0,          icon: 'ShoppingCart', color: 'var(--accent-light)' },
     { label: 'Témoignages',    value: stats.testimonials ?? 0,   icon: 'Heart',      color: 'var(--coral)' },
     { label: 'Projets',        value: stats.projects,            icon: 'Code',       color: 'var(--accent)' },
     { label: 'Compétences',    value: stats.skills,              icon: 'Tool',       color: 'var(--sage)' },
@@ -171,7 +157,7 @@ function OverviewPanel({ stats }) {
 
   return (
     <>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 mb-6">
         {cards.map(c => {
           const IconC = Icon[c.icon];
           return (
@@ -262,11 +248,8 @@ export default function AdminDashboard() {
     if (tab === 'overview') return <OverviewPanel stats={stats} />;
     if (tab === 'profile')  return <ProfileEditor />;
     if (tab === 'messages') return <MessagesPanel />;
-    if (tab === 'sales')    return <SalesPanel />;
     if (tab === 'media')    return <MediaPanel />;
-    if (tab === 'delivery') return <DeliveryPanel />;
     if (tab === 'account')  return <AccountPanel />;
-    if (tab === 'users')    return <UsersPanel />;
     if (tab === 'analytics') return <AnalyticsPanel />;
     return <EntityManager table={tab} key={tab} />;
   };

@@ -36,71 +36,9 @@ async function autoMigrate() {
     await query('CREATE INDEX IF NOT EXISTS idx_page_views_visited_at ON page_views(visited_at)');
     await query('CREATE INDEX IF NOT EXISTS idx_page_views_ip_day ON page_views(ip, (visited_at::date))');
 
-    await query(`CREATE TABLE IF NOT EXISTS users (
-      id SERIAL PRIMARY KEY,
-      email TEXT UNIQUE NOT NULL,
-      password_hash TEXT NOT NULL,
-      name TEXT,
-      email_verified BOOLEAN DEFAULT FALSE,
-      verification_token TEXT,
-      verification_expires_at TIMESTAMPTZ,
-      created_at TIMESTAMPTZ DEFAULT NOW(),
-      last_login TIMESTAMPTZ
-    )`);
-    await query('CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)');
-    await query('CREATE INDEX IF NOT EXISTS idx_users_verification_token ON users(verification_token)');
-    // Password reset columns
-    await query('ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token TEXT');
-    await query('ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_expires_at TIMESTAMPTZ');
-    await query('CREATE INDEX IF NOT EXISTS idx_users_reset_token ON users(reset_token)');
-
-    await query(`CREATE TABLE IF NOT EXISTS cv_templates (
-      id SERIAL PRIMARY KEY,
-      slug TEXT UNIQUE NOT NULL,
-      name TEXT NOT NULL,
-      description TEXT,
-      category TEXT,
-      style TEXT,
-      preview_url TEXT,
-      edit_url TEXT,
-      view_url TEXT,
-      builder_id TEXT,
-      is_premium BOOLEAN DEFAULT FALSE,
-      price NUMERIC(10,2) DEFAULT 0,
-      currency TEXT DEFAULT 'EUR',
-      tags TEXT[] DEFAULT ARRAY[]::TEXT[],
-      display_order INT DEFAULT 0,
-      downloads INT DEFAULT 0,
-      created_at TIMESTAMPTZ DEFAULT NOW()
-    )`);
-
-    await query(`CREATE TABLE IF NOT EXISTS cv_template_purchases (
-      id SERIAL PRIMARY KEY,
-      template_id INT REFERENCES cv_templates(id) ON DELETE SET NULL,
-      template_slug TEXT NOT NULL,
-      template_name TEXT NOT NULL,
-      paypal_order_id TEXT UNIQUE NOT NULL,
-      payer_email TEXT,
-      payer_name TEXT,
-      amount NUMERIC(10,2) NOT NULL,
-      currency TEXT DEFAULT 'EUR',
-      status TEXT NOT NULL DEFAULT 'pending',
-      canva_edit_url TEXT,
-      delivered_at TIMESTAMPTZ,
-      ip_address TEXT,
-      user_id INT REFERENCES users(id) ON DELETE SET NULL,
-      created_at TIMESTAMPTZ DEFAULT NOW()
-    )`);
-
-    await query(`CREATE TABLE IF NOT EXISTS cv_drafts (
-      id SERIAL PRIMARY KEY,
-      user_id INT UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-      data JSONB NOT NULL DEFAULT '{}',
-      template_id TEXT,
-      color TEXT,
-      last_step INT DEFAULT 0,
-      updated_at TIMESTAMPTZ DEFAULT NOW()
-    )`);
+    // Note : les anciennes tables de la marketplace CV (users, cv_templates,
+    // cv_template_purchases, cv_drafts) ne sont plus créées. Elles ne sont pas
+    // supprimées pour ne perdre aucune donnée existante.
 
     await query(`CREATE TABLE IF NOT EXISTS media_assets (
       id SERIAL PRIMARY KEY,
@@ -157,43 +95,6 @@ async function autoMigrate() {
       }
     } else {
       console.warn('[Migrate] ADMIN_PASSWORD not set — admin user NOT created. Set it in Railway env.');
-    }
-
-    // Clean up: remove premium templates with placeholder Canva URLs that don't actually work.
-    // (Will be re-added one by one via admin when Saleh has real Canva designs.)
-    try {
-      const cleaned = await query(
-        "DELETE FROM cv_templates WHERE is_premium = TRUE AND edit_url LIKE 'https://www.canva.com/d/%' RETURNING slug"
-      );
-      if (cleaned.rowCount > 0) {
-        console.log(`[Migrate] Cleaned ${cleaned.rowCount} broken premium templates`);
-      }
-    } catch (e) {
-      console.warn('[Migrate] Could not clean premium templates:', e.message);
-    }
-
-    // Bootstrap CV templates — idempotent upsert at every startup (10 free in-site builders only)
-    {
-      const templates = [
-        { slug: 'modern',   name: 'Modern',      description: 'Barre latérale colorée, design contemporain', category: 'Universel', style: 'modern',   preview_url: null, builder_id: 'modern',   is_premium: false, price: 0, order: 1 },
-        { slug: 'classic',  name: 'Classique',   description: 'Sobre, ATS-friendly, parfait pour candidatures classiques', category: 'Universel', style: 'classic',  preview_url: null, builder_id: 'classic',  is_premium: false, price: 0, order: 2 },
-        { slug: 'creative', name: 'Créatif',     description: 'Header coloré + timeline visuelle', category: 'Créatif',  style: 'creative', preview_url: null, builder_id: 'creative', is_premium: false, price: 0, order: 3 },
-        { slug: 'minimal',  name: 'Minimaliste', description: 'Très épuré, typographie soignée', category: 'Universel', style: 'minimal',  preview_url: null, builder_id: 'minimal',  is_premium: false, price: 0, order: 4 },
-        { slug: 'tech',     name: 'Tech / Dev',  description: 'Style terminal pour développeurs', category: 'Tech', style: 'tech',     preview_url: null, builder_id: 'tech',     is_premium: false, price: 0, order: 5 },
-        { slug: 'elegant',     name: 'Élégant',          description: 'Variante minimaliste raffinée, typographie serif', category: 'Universel', style: 'minimal',  preview_url: null, builder_id: 'minimal',  is_premium: false, price: 0, order: 6 },
-        { slug: 'corporate-free', name: 'Corporate Free', description: 'Style classique professionnel, ATS-friendly', category: 'Corporate', style: 'classic',  preview_url: null, builder_id: 'classic',  is_premium: false, price: 0, order: 7 },
-        { slug: 'startup',     name: 'Startup',          description: 'Variante moderne dynamique pour profils startup', category: 'Tech', style: 'modern',   preview_url: null, builder_id: 'modern',   is_premium: false, price: 0, order: 8 },
-        { slug: 'designer',    name: 'Designer',         description: 'Variante créative orientée portfolio', category: 'Créatif', style: 'creative', preview_url: null, builder_id: 'creative', is_premium: false, price: 0, order: 9 },
-        { slug: 'developer',   name: 'Developer',        description: 'Variante tech orientée open-source / GitHub', category: 'Tech', style: 'tech',     preview_url: null, builder_id: 'tech',     is_premium: false, price: 0, order: 10 },
-      ];
-      for (const t of templates) {
-        await query(
-          `INSERT INTO cv_templates (slug, name, description, category, style, preview_url, edit_url, builder_id, is_premium, price, tags, display_order)
-           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) ON CONFLICT (slug) DO NOTHING`,
-          [t.slug, t.name, t.description, t.category, t.style, t.preview_url, t.edit_url || null, t.builder_id || null, t.is_premium, t.price, t.tags || [], t.order]
-        );
-      }
-      console.log(`[Migrate] Upserted ${templates.length} CV templates`);
     }
 
     // Bootstrap minimal profile row if missing (so /api/profile doesn't return null)
@@ -273,8 +174,14 @@ async function autoMigrate() {
       console.error('[Migrate] Profile email update failed:', e.message);
     }
 
-    // Add Portfolio project if missing (idempotent)
+    // Portfolio project: add if missing, and strip old CV-marketplace wording (idempotent)
     try {
+      const portfolioText = [
+        JSON.stringify({fr:'Site personnel avec chatbot IA', en:'Personal site with AI chatbot', ar:'موقع شخصي مع محادثة ذكاء اصطناعي'}),
+        JSON.stringify({fr:"Portfolio full-stack avec chatbot intelligent propulsé par Claude API, espace admin complet et contenu multilingue FR/EN/AR.", en:"Full-stack portfolio with a Claude API chatbot, a full admin dashboard and FR/EN/AR content.", ar:"موقع شخصي شامل مع شات بوت ذكي مدعوم بـ Claude API، لوحة إدارة كاملة، ومحتوى متعدد اللغات."}),
+        JSON.stringify({fr:"Plateforme construite avec Next.js (SSR) déployée sur Vercel, et un backend Express + PostgreSQL hébergé sur Railway. Tout le contenu (profil, projets, compétences, parcours, témoignages) est modifiable depuis un espace admin sécurisé. Le chatbot utilise l'API Claude pour répondre aux visiteurs en 3 langues.", en:"Built with Next.js (SSR) on Vercel and Express + PostgreSQL on Railway. All content (profile, projects, skills, experience, testimonials) is editable from a secure admin dashboard. The chatbot uses the Claude API and answers visitors in 3 languages.", ar:"تم بناؤه باستخدام Next.js على Vercel و Express + PostgreSQL على Railway. كل المحتوى قابل للتعديل من لوحة إدارة آمنة. الشات بوت يعمل بـ Claude API ويجيب بثلاث لغات."}),
+        JSON.stringify({fr:["Chatbot Claude API multilingue","Espace admin pour gérer tout le contenu","Authentification JWT admin","Témoignages et statistiques de visites","Site trilingue FR/EN/AR avec RTL"], en:["Multilingual Claude API chatbot","Admin dashboard to manage all content","JWT admin authentication","Testimonials and visitor analytics","Trilingual FR/EN/AR site with RTL"], ar:["شات بوت متعدد اللغات بـ Claude","لوحة إدارة لكل المحتوى","مصادقة JWT للمشرف","شهادات وإحصائيات الزوار","موقع بثلاث لغات مع دعم RTL"]}),
+      ];
       const portfolioExists = await query("SELECT id FROM projects WHERE slug = 'portfolio' LIMIT 1");
       if (!portfolioExists.rows.length) {
         await query(
@@ -283,19 +190,24 @@ async function autoMigrate() {
              $1::jsonb, $2::jsonb, $3::jsonb,
              'Full-Stack',
              $4::jsonb,
-             ARRAY['Next.js','Express','PostgreSQL','Claude API','PayPal','Tailwind'],
+             ARRAY['Next.js','Express','PostgreSQL','Claude API','Tailwind'],
              '#c8a96e', 'code',
              'https://github.com/SALEH9833/portfolio',
              true, 3
            )`,
-          [
-            JSON.stringify({fr:'Site personnel avec marketplace CV & chatbot IA', en:'Personal site with CV marketplace & AI chatbot', ar:'موقع شخصي مع متجر CV ومحادثة ذكاء اصطناعي'}),
-            JSON.stringify({fr:"Portfolio full-stack avec marketplace de templates CV (29 modèles), chatbot intelligent propulsé par Claude API, paiements PayPal, multilingue FR/EN/AR.", en:"Full-stack portfolio with CV templates marketplace (29 designs), Claude API chatbot, PayPal payments, FR/EN/AR i18n.", ar:"موقع شخصي شامل مع متجر قوالب السيرة الذاتية (29 تصميم)، شات بوت ذكي مدعوم بـ Claude API، مدفوعات PayPal، متعدد اللغات."}),
-            JSON.stringify({fr:"Plateforme construite avec Next.js (SSR) déployée sur Vercel, et un backend Express + PostgreSQL hébergé sur Railway. Le marketplace de CV propose 10 modèles gratuits (builders intégrés) et 19 designs premium Canva avec paiement et livraison automatisée. Le chatbot utilise Claude Opus 4.7 pour répondre aux visiteurs en 3 langues.", en:"Built with Next.js (SSR) on Vercel and Express + PostgreSQL on Railway. The CV marketplace offers 10 free in-site builders and 19 premium Canva designs with automated checkout. The chatbot is powered by Claude Opus 4.7 and answers in 3 languages.", ar:"تم بناؤه باستخدام Next.js على Vercel و Express + PostgreSQL على Railway. يوفر متجر السير الذاتية 10 قوالب مجانية و 19 تصميم Canva مميز مع دفع آلي. الشات بوت يعمل بـ Claude Opus 4.7."}),
-            JSON.stringify({fr:["Marketplace de 29 modèles CV (10 gratuits + 19 premium Canva)","Chatbot Claude API multilingue","Paiement PayPal + livraison automatisée","Authentification JWT (admin + utilisateurs)","Sync CV cloud + vérification email"], en:["29-template CV marketplace (10 free + 19 premium)","Claude-powered multilingual chatbot","PayPal checkout + automated delivery","JWT auth (admin + users)","Cloud CV sync + email verification"], ar:["متجر 29 قالب CV (10 مجاني + 19 مميز)","شات بوت متعدد اللغات بـ Claude","دفع PayPal مع تسليم آلي","مصادقة JWT","مزامنة سحابية للسير الذاتية"]}),
-          ]
+          portfolioText
         );
         console.log('[Migrate] ✅ Portfolio project added');
+      } else {
+        const upd = await query(
+          `UPDATE projects
+             SET subtitle = $1::jsonb, description = $2::jsonb, long_description = $3::jsonb,
+                 highlights = $4::jsonb, tech = array_remove(tech, 'PayPal')
+           WHERE slug = 'portfolio'
+             AND (description::text ILIKE '%marketplace%' OR 'PayPal' = ANY(tech))`,
+          portfolioText
+        );
+        if (upd.rowCount) console.log('[Migrate] Portfolio project text updated (CV marketplace removed)');
       }
     } catch (e) {
       console.error('[Migrate] Portfolio project insert failed:', e.message);
