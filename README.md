@@ -5,112 +5,68 @@ Portfolio personnel + chatbot IA + espace admin.
 
 ## Stack
 
-- **Frontend** : Next.js 14 (SSR) · Tailwind · Framer Motion → déployé sur **Vercel**
-- **Backend** : Express + PostgreSQL → déployé sur **Railway**
-- **IA** : Claude API (chatbot intelligent)
-- **DNS** : Cloudflare Registrar
+Une seule application **Next.js 14** déployée sur **Vercel** :
+
+- **Site** : Next.js (SSR) · Tailwind · Framer Motion
+- **API** : Express, servie par Next.js via `pages/api/[...path].js` (fonctions serverless Vercel)
+- **Base de données** : PostgreSQL sur **Neon** (gratuit, connecté depuis Vercel → Storage)
+- **Images uploadées** : **Vercel Blob** (connecté depuis Vercel → Storage)
+- **IA** : Claude API (chatbot)
+- **DNS** : Cloudflare
 
 ## Développement local
 
-### Prérequis
-- Node.js 18+
-- PostgreSQL 14+
-
-### Setup
+Prérequis : Node.js 20+ et une base PostgreSQL (locale ou Neon).
 
 ```bash
-# Backend
-cd backend
-cp .env.example .env   # remplis tes valeurs
-npm install
-npm run db:seed        # seed la BDD
-npm run dev
-
-# Frontend (autre terminal)
 cd frontend
-cp .env.local.example .env.local
+cp .env.example .env.local   # remplis DATABASE_URL, JWT_SECRET, ADMIN_PASSWORD…
 npm install
 npm run dev
 ```
 
-URLs locales :
-- Frontend : http://localhost:3000
-- Backend : http://localhost:5000
+- Site : http://localhost:3000
+- API : http://localhost:3000/api/health
 - Admin : http://localhost:3000/admin
 
-## Variables d'environnement
+Les tables sont créées automatiquement au premier appel API, et le contenu
+du CV (`server/db/production-import.sql`) est importé si la base est vide.
 
-Voir `backend/.env.example` et `frontend/.env.local.example`.
+## Déploiement (Vercel)
 
-**Critique en production** :
-- `JWT_SECRET` — chaîne aléatoire 96 chars (`node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"`)
-- `ADMIN_PASSWORD` — mot de passe fort
-- `ANTHROPIC_API_KEY` — pour le chatbot Claude
-- `DATABASE_URL` — fourni par Railway automatiquement
-- `EMAIL_USER` + `EMAIL_PASS` — Gmail App Password
-
-## Déploiement
-
-### Backend → Railway
-
-1. **New Project** → **Deploy from GitHub repo**
-2. **Root directory** : `backend`
-3. **Add PostgreSQL** (database) — `DATABASE_URL` injecté automatiquement
-4. **Variables** → copier depuis `.env.example` :
-   - `NODE_ENV=production`
-   - `JWT_SECRET=...`
-   - `ADMIN_USERNAME=admin` / `ADMIN_PASSWORD=...`
-   - `ANTHROPIC_API_KEY=...`
-   - `EMAIL_USER=...` / `EMAIL_PASS=...` / `EMAIL_TO=...`
-   - `FRONTEND_URL=https://salehmahamatsaleh.com`
-5. **Settings** → **Networking** → **Generate Domain**
-6. **Custom Domain** : `api.salehmahamatsaleh.com`
-
-### Frontend → Vercel
-
-1. **Import Git Repository**
-2. **Root Directory** : `frontend`
-3. **Environment Variables** :
-   - `BACKEND_URL=https://api.salehmahamatsaleh.com`
-   - `NEXT_PUBLIC_BACKEND_URL=https://api.salehmahamatsaleh.com`
-4. **Deploy**
-5. **Domains** → ajouter `salehmahamatsaleh.com` + `www.salehmahamatsaleh.com`
-
-### DNS → Cloudflare
-
-Dans **DNS Settings** du domaine :
-
-| Type | Name | Content | Proxy |
-|---|---|---|---|
-| CNAME | @ | cname.vercel-dns.com | DNS only |
-| CNAME | www | cname.vercel-dns.com | DNS only |
-| CNAME | api | xxx-yyy.up.railway.app | DNS only |
+1. **Root Directory** du projet Vercel : `frontend`
+2. **Storage → Create → Neon (Postgres)** → connecter au projet (ajoute `DATABASE_URL`)
+3. **Storage → Create → Blob** → connecter au projet (ajoute `BLOB_READ_WRITE_TOKEN`)
+4. **Settings → Environment Variables** :
+   - `JWT_SECRET` — `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"`
+   - `ADMIN_USERNAME` / `ADMIN_PASSWORD`
+   - `ANTHROPIC_API_KEY`
+   - `EMAIL_USER` / `EMAIL_PASS` (Gmail App Password) / `EMAIL_TO`
+5. **Deploy** (redéployer après avoir ajouté les variables)
 
 ## Structure
 
 ```
 portfolio/
-├── frontend/                    # Next.js app
-│   ├── pages/                   # Routes (index, admin, sitemap)
-│   ├── components/              # React components
-│   │   └── admin/               # Admin-specific UI (editors, panels)
-│   ├── lib/                     # i18n, theme
-│   └── styles/                  # globals.css
-└── backend/                     # Express API
-    ├── routes/                  # admin, chatbot, contact, profile, projects, testimonials, media, analytics, ...
-    ├── middleware/              # security, auth
-    ├── db/                      # PostgreSQL access + schema + auto-migrate + seeds
-    └── public/                  # static files (images, uploads, files)
+└── frontend/                 # application Next.js (site + API)
+    ├── pages/                # index, admin, sitemap.xml, api/[...path]
+    ├── components/           # composants React (+ admin/)
+    ├── lib/                  # i18n, thème
+    ├── styles/
+    ├── public/               # images, files/cv.pdf, robots.txt
+    └── server/               # API Express
+        ├── app.js            # montage des routes
+        ├── routes/           # admin, chatbot, contact, profile, projects, testimonials, media, analytics…
+        ├── middleware/       # sécurité, auth JWT
+        ├── db/               # connexion, schéma, migrations auto, import du contenu
+        └── storage.js        # uploads (Vercel Blob / disque en local)
 ```
 
 ## Admin
 
-URL : `/admin/login`
-Credentials : variables `ADMIN_USERNAME` / `ADMIN_PASSWORD`
+URL : `/admin/login` — identifiants : `ADMIN_USERNAME` / `ADMIN_PASSWORD`.
 
-Onglets disponibles :
-- Vue d'ensemble · Visiteurs · Profil · Médias · Témoignages · Messages
-- Édition CRUD pour : profil, projets, compétences, expérience, formation, langues, certifications, activités, etc.
+Onglets : Vue d'ensemble · Visiteurs · Profil · Compétences · Parcours · Projets · Témoignages · Messages · Médias.
 
 ## License
 

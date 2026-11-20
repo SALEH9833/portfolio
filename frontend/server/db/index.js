@@ -1,10 +1,12 @@
 const { Pool } = require('pg');
 
-// Railway/Heroku/Render provide DATABASE_URL — use it if present, else build from parts
-const poolConfig = process.env.DATABASE_URL
+// Neon / Vercel Postgres provide DATABASE_URL (or POSTGRES_URL) — use it if present, else build from parts
+const connectionString = process.env.DATABASE_URL || process.env.POSTGRES_URL;
+const isLocalDb = !connectionString || /localhost|127\.0\.0\.1/.test(connectionString);
+const poolConfig = connectionString
   ? {
-      connectionString: process.env.DATABASE_URL,
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+      connectionString,
+      ssl: isLocalDb ? false : { rejectUnauthorized: false },
     }
   : {
       host:     process.env.DB_HOST     || 'localhost',
@@ -16,8 +18,8 @@ const poolConfig = process.env.DATABASE_URL
 
 const pool = new Pool({
   ...poolConfig,
-  max: 20,
-  idleTimeoutMillis: 30000,
+  max: parseInt(process.env.DB_POOL_MAX) || 5, // small pool: serverless functions
+  idleTimeoutMillis: 10000,
   connectionTimeoutMillis: 5000,
 });
 

@@ -4,26 +4,14 @@ const express = require('express');
 const router = express.Router();
 const rateLimit = require('express-rate-limit');
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
-const crypto = require('crypto');
+const { saveUpload } = require('../storage');
 
 const ALLOWED_MIME = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_SIZE = 2 * 1024 * 1024; // 2 MB
 
-function makeUploader(subdir) {
-  const dir = path.join(__dirname, '..', 'public', 'uploads', subdir);
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  const storage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, dir),
-    filename: (req, file, cb) => {
-      const hash = crypto.randomBytes(8).toString('hex');
-      const ext = path.extname(file.originalname).toLowerCase().slice(0, 8);
-      cb(null, `${subdir}-${Date.now()}-${hash}${ext}`);
-    },
-  });
+function makeUploader() {
   return multer({
-    storage,
+    storage: multer.memoryStorage(),
     limits: { fileSize: MAX_SIZE },
     fileFilter: (req, file, cb) => {
       if (!ALLOWED_MIME.includes(file.mimetype)) {
@@ -42,19 +30,21 @@ const testiLimiter = rateLimit({
   message: { error: 'Trop d\'uploads de photo. Réessayez dans 1 heure.' },
 });
 
-const testiUpload = makeUploader('testimonials');
+const testiUpload = makeUploader();
 
-function handleUpload(req, res, subdir) {
+async function handleUpload(req, res, next, folder) {
   if (!req.file) return res.status(400).json({ error: 'Aucune photo reçue' });
-  const url = `/uploads/${subdir}/${req.file.filename}`;
-  res.status(201).json({ success: true, url });
+  try {
+    const { url } = await saveUpload(req.file, folder, 'testi');
+    res.status(201).json({ success: true, url });
+  } catch (e) { next(e); }
 }
 
 // Testimonial photo
-router.post('/testimonial-photo', testiLimiter, (req, res) => {
+router.post('/testimonial-photo', testiLimiter, (req, res, next) => {
   testiUpload.single('photo')(req, res, (err) => {
     if (err) return res.status(400).json({ error: err.message || 'Erreur d\'upload' });
-    handleUpload(req, res, 'testimonials');
+    handleUpload(req, res, next, 'testimonials');
   });
 });
 

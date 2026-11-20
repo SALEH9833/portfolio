@@ -110,7 +110,7 @@ function TestimonialForm({ onSubmitted }) {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       if (res.data?.url) {
-        update('photo_url', `${API}${res.data.url}`);
+        update('photo_url', fullPhotoUrl(res.data.url));
         toast.success('Photo ajoutée ✓');
       }
     } catch (err) {

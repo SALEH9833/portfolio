@@ -3,23 +3,10 @@ const router = express.Router();
 const rateLimit = require('express-rate-limit');
 const { body, validationResult } = require('express-validator');
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
-const crypto = require('crypto');
+const { saveUpload } = require('../storage');
 const { query } = require('../db');
 
-// Photo upload setup
-const TESTI_UPLOAD_DIR = path.join(__dirname, '..', 'public', 'uploads', 'testimonials');
-if (!fs.existsSync(TESTI_UPLOAD_DIR)) fs.mkdirSync(TESTI_UPLOAD_DIR, { recursive: true });
-
-const photoStorage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, TESTI_UPLOAD_DIR),
-  filename: (req, file, cb) => {
-    const hash = crypto.randomBytes(8).toString('hex');
-    const ext = path.extname(file.originalname).toLowerCase();
-    cb(null, `testi-${Date.now()}-${hash}${ext}`);
-  },
-});
+const photoStorage = multer.memoryStorage();
 const photoUpload = multer({
   storage: photoStorage,
   limits: { fileSize: 2 * 1024 * 1024 }, // 2 MB max
@@ -111,13 +98,15 @@ router.post(
 
 // Public: upload a photo for a testimonial (returns URL to attach)
 router.post('/upload-photo', photoUploadLimiter, (req, res, next) => {
-  photoUpload.single('photo')(req, res, (err) => {
+  photoUpload.single('photo')(req, res, async (err) => {
     if (err) {
       return res.status(400).json({ error: err.message || 'Erreur d\'upload' });
     }
     if (!req.file) return res.status(400).json({ error: 'Aucune photo reçue' });
-    const url = `/uploads/testimonials/${req.file.filename}`;
-    res.status(201).json({ success: true, url });
+    try {
+      const { url } = await saveUpload(req.file, 'testimonials', 'testi');
+      res.status(201).json({ success: true, url });
+    } catch (e) { next(e); }
   });
 });
 

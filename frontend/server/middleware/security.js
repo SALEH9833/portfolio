@@ -22,18 +22,25 @@ function isAllowedOrigin(origin) {
   return false;
 }
 
-const corsOptions = {
-  origin: (origin, callback) => {
-    if (isAllowedOrigin(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('CORS policy violation'));
-    }
-  },
+const corsBase = {
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
   credentials: false,
   maxAge: 86400,
+};
+
+// Same-origin requests (site and API are one app on Vercel) are always allowed
+function sameOrigin(req, origin) {
+  try { return new URL(origin).host === req.headers.host; } catch { return false; }
+}
+
+const corsOptions = (req, callback) => {
+  const origin = req.headers.origin;
+  if (isAllowedOrigin(origin) || sameOrigin(req, origin)) {
+    callback(null, { ...corsBase, origin: true });
+  } else {
+    callback(Object.assign(new Error('CORS policy violation'), { status: 403 }));
+  }
 };
 
 const globalLimiter = rateLimit({
@@ -42,7 +49,7 @@ const globalLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many requests. Please try again later.' },
-  skip: (req) => req.path === '/health',
+  skip: (req) => req.originalUrl.startsWith('/api/health'),
 });
 
 const contactLimiter = rateLimit({

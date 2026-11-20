@@ -18,7 +18,7 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: http: https: blob:",
-              "connect-src 'self' http://localhost:5000 https://api.salehmahamatsaleh.com https:",
+              "connect-src 'self' https:",
               "object-src 'none'",
             ].join('; '),
           },
@@ -28,22 +28,38 @@ const nextConfig = {
           },
         ],
       },
+      {
+        source: '/files/:file*.pdf',
+        headers: [{ key: 'Content-Disposition', value: 'attachment' }],
+      },
     ];
   },
   images: {
-    domains: ['localhost', 'avatars.githubusercontent.com', 'github.com', 'salehmahamatsaleh.com', 'api.salehmahamatsaleh.com'],
     remotePatterns: [
-      { protocol: 'http',  hostname: 'localhost', port: '5000', pathname: '/**' },
-      { protocol: 'https', hostname: 'api.salehmahamatsaleh.com', pathname: '/**' },
-      { protocol: 'https', hostname: '**.up.railway.app', pathname: '/**' },
       { protocol: 'https', hostname: 'avatars.githubusercontent.com' },
-      { protocol: 'https', hostname: 'design.canva.ai' },
+      { protocol: 'https', hostname: '**.public.blob.vercel-storage.com' },
     ],
   },
 
+  // The API now lives in this same Next.js app (pages/api/[...path].js), so the
+  // frontend calls it on the same origin. Forced to '' so an old Vercel variable
+  // pointing to the former Railway backend can't break the site.
   env: {
-    BACKEND_URL: process.env.BACKEND_URL || 'http://localhost:5000',
-    NEXT_PUBLIC_BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000',
+    NEXT_PUBLIC_BACKEND_URL: '',
+  },
+
+  // Files the API reads at runtime must be bundled with the serverless function
+  experimental: {
+    outputFileTracingIncludes: {
+      '/api/[...path]': ['./server/db/*.sql'],
+    },
+  },
+
+  // Old URLs from the Railway era
+  async redirects() {
+    return [
+      { source: '/health', destination: '/api/health', permanent: false },
+    ];
   },
 };
 

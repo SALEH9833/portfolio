@@ -59,8 +59,7 @@ coverage/
 .stylelintcache
 
 # -------- Uploads utilisateurs (vie privée — pas sur git) --------
-backend/public/uploads/
-!backend/public/uploads/.gitkeep
+frontend/public/uploads/
 
 # -------- Fichiers temporaires --------
 *.tmp

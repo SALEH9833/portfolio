@@ -13,18 +13,28 @@ import Footer      from '../components/Footer';
 import Chatbot     from '../components/Chatbot';
 import Testimonials from '../components/Testimonials';
 
-export async function getServerSideProps() {
-  const backendUrl = process.env.BACKEND_URL || 'http://localhost:5000';
+export async function getServerSideProps({ req }) {
+  // The API is served by this same app (pages/api) — call it on our own host.
+  const proto = req.headers['x-forwarded-proto'] || 'http';
+  const backendUrl = process.env.INTERNAL_API_URL || `${proto}://${req.headers.host}`;
   try {
-    const [pRes, prRes, skRes, exRes, edRes] = await Promise.all([
-      fetch(`${backendUrl}/api/profile`,           { cache: 'no-store' }),
-      fetch(`${backendUrl}/api/projects`,          { cache: 'no-store' }),
-      fetch(`${backendUrl}/api/skills`,            { cache: 'no-store' }),
-      fetch(`${backendUrl}/api/experience`,        { cache: 'no-store' }),
-      fetch(`${backendUrl}/api/profile/education`, { cache: 'no-store' }),
-    ]);
+    // Never let a slow/offline backend hang the page: each call gives up after 4s
+    // and falls back to empty data, so the site always renders.
+    const get = async (path) => {
+      try {
+        const r = await fetch(`${backendUrl}${path}`, { cache: 'no-store', signal: AbortSignal.timeout(4000) });
+        return r.ok ? await r.json() : {};
+      } catch (e) {
+        console.error(`[SSR] ${path} failed:`, e.message);
+        return {};
+      }
+    };
     const [pd, prd, skd, exd, edd] = await Promise.all([
-      pRes.json(), prRes.json(), skRes.json(), exRes.json(), edRes.json(),
+      get('/api/profile'),
+      get('/api/projects'),
+      get('/api/skills'),
+      get('/api/experience'),
+      get('/api/profile/education'),
     ]);
     return {
       props: {
