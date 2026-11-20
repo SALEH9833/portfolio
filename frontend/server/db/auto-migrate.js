@@ -96,9 +96,16 @@ async function autoMigrate() {
           [adminUsername, hash, process.env.EMAIL_TO || null]
         );
         console.log(`[Migrate] Admin user "${adminUsername}" bootstrapped from env`);
+      } else if (process.env.ADMIN_RESET_PASSWORD === 'true') {
+        // Forgotten password: set ADMIN_RESET_PASSWORD=true + a new ADMIN_PASSWORD in Vercel,
+        // redeploy, log in, then remove ADMIN_RESET_PASSWORD.
+        const bcrypt = require('bcryptjs');
+        const hash = await bcrypt.hash(adminPassword, 12);
+        await query('UPDATE admin_users SET password_hash = $1 WHERE username = $2', [hash, adminUsername]);
+        console.log(`[Migrate] Admin "${adminUsername}" password reset from env (ADMIN_RESET_PASSWORD)`);
       }
     } else {
-      console.warn('[Migrate] ADMIN_PASSWORD not set — admin user NOT created. Set it in Railway env.');
+      console.warn('[Migrate] ADMIN_PASSWORD not set — admin user NOT created. Set it in Vercel env.');
     }
 
     // Bootstrap minimal profile row if missing (so /api/profile doesn't return null)
