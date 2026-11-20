@@ -52,7 +52,7 @@ function Item({ item, index, isLast, t: i18n, locale }) {
             </span>
             {item.current && (
               <span className="flex items-center gap-1.5 text-2xs font-mono text-sage">
-                <span className="w-1.5 h-1.5 rounded-full bg-sage animate-pulse" />
+                <span className="w-1.5 h-1.5 rounded-full bg-sage" />
                 {i18n('experience.current')}
               </span>
             )}
@@ -89,10 +89,8 @@ export default function Experience({ experience }) {
   const { ref, inView } = useInView({ threshold: 0.1, triggerOnce: true });
 
   return (
-    <section id="experience" className="bg-ink-900 py-28 lg:py-30">
-      <div className="sep mb-0" />
-
-      <div className="max-w-7xl mx-auto px-6 lg:px-10 pt-22">
+    <section id="experience" className="bg-ink-900 py-20 lg:py-24 border-t" style={{ borderColor: 'var(--border)' }}>
+      <div className="max-w-5xl mx-auto px-6 lg:px-8">
 
         <motion.div
           ref={ref}

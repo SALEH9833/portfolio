@@ -54,7 +54,7 @@ function TestimonialCard({ t, isLarge = false }) {
           <img src={t.photo_url} alt={t.name} className="w-11 h-11 rounded-full object-cover border" style={{ borderColor: 'var(--border-hover)' }} />
         ) : (
           <div className="w-11 h-11 rounded-full flex items-center justify-center font-display font-semibold text-sm shrink-0"
-            style={{ background: 'linear-gradient(135deg, var(--accent-light), var(--accent-dark))', color: 'var(--bg)' }}>
+            style={{ background: 'var(--accent)', color: 'var(--bg)' }}>
             {initials}
           </div>
         )}
@@ -141,7 +141,7 @@ function TestimonialForm({ onSubmitted }) {
     <form onSubmit={submit} className="space-y-4">
       {/* Photo uploader */}
       <div>
-        <label className="block text-2xs font-mono uppercase tracking-wider mb-1.5" style={{ color: 'var(--text-muted)' }}>
+        <label className="block text-xs font-medium  mb-1.5" style={{ color: 'var(--text-muted)' }}>
           Votre photo (optionnel)
         </label>
         <div className="flex items-center gap-4">
@@ -178,7 +178,7 @@ function TestimonialForm({ onSubmitted }) {
 
       <div className="grid sm:grid-cols-2 gap-3">
         <div>
-          <label className="block text-2xs font-mono uppercase tracking-wider mb-1.5" style={{ color: 'var(--text-muted)' }}>
+          <label className="block text-xs font-medium  mb-1.5" style={{ color: 'var(--text-muted)' }}>
             Votre nom *
           </label>
           <input className="field" required minLength={2} maxLength={100}
@@ -186,7 +186,7 @@ function TestimonialForm({ onSubmitted }) {
             placeholder="Marie Dupont" />
         </div>
         <div>
-          <label className="block text-2xs font-mono uppercase tracking-wider mb-1.5" style={{ color: 'var(--text-muted)' }}>
+          <label className="block text-xs font-medium  mb-1.5" style={{ color: 'var(--text-muted)' }}>
             Email (privé)
           </label>
           <input type="email" className="field" maxLength={200}
@@ -197,7 +197,7 @@ function TestimonialForm({ onSubmitted }) {
 
       <div className="grid sm:grid-cols-2 gap-3">
         <div>
-          <label className="block text-2xs font-mono uppercase tracking-wider mb-1.5" style={{ color: 'var(--text-muted)' }}>
+          <label className="block text-xs font-medium  mb-1.5" style={{ color: 'var(--text-muted)' }}>
             Votre poste
           </label>
           <input className="field" maxLength={120}
@@ -205,7 +205,7 @@ function TestimonialForm({ onSubmitted }) {
             placeholder="Développeuse, Étudiante…" />
         </div>
         <div>
-          <label className="block text-2xs font-mono uppercase tracking-wider mb-1.5" style={{ color: 'var(--text-muted)' }}>
+          <label className="block text-xs font-medium  mb-1.5" style={{ color: 'var(--text-muted)' }}>
             Entreprise / École
           </label>
           <input className="field" maxLength={120}
@@ -215,7 +215,7 @@ function TestimonialForm({ onSubmitted }) {
       </div>
 
       <div>
-        <label className="block text-2xs font-mono uppercase tracking-wider mb-1.5" style={{ color: 'var(--text-muted)' }}>
+        <label className="block text-xs font-medium  mb-1.5" style={{ color: 'var(--text-muted)' }}>
           Comment connaissez-vous Saleh ?
         </label>
         <select className="field" value={form.relation} onChange={(e) => update('relation', e.target.value)}>
@@ -231,7 +231,7 @@ function TestimonialForm({ onSubmitted }) {
       </div>
 
       <div>
-        <label className="block text-2xs font-mono uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>
+        <label className="block text-xs font-medium  mb-2" style={{ color: 'var(--text-muted)' }}>
           Note globale *
         </label>
         <div className="flex items-center gap-3">
@@ -241,7 +241,7 @@ function TestimonialForm({ onSubmitted }) {
       </div>
 
       <div>
-        <label className="block text-2xs font-mono uppercase tracking-wider mb-1.5" style={{ color: 'var(--text-muted)' }}>
+        <label className="block text-xs font-medium  mb-1.5" style={{ color: 'var(--text-muted)' }}>
           Votre avis * <span className="lowercase opacity-70">(20-1000 caractères)</span>
         </label>
         <textarea
@@ -291,13 +291,9 @@ export default function Testimonials() {
     : '5.0';
 
   return (
-    <section id="testimonials" ref={ref} className="py-24 lg:py-32 relative" style={{ background: 'var(--bg)' }}>
-      <div className="absolute inset-0 pointer-events-none opacity-50">
-        <div className="absolute top-20 left-1/4 w-[30rem] h-[30rem]"
-          style={{ background: 'radial-gradient(circle, var(--hero-glow-1), transparent 60%)' }} />
-      </div>
+    <section id="testimonials" ref={ref} className="py-20 lg:py-24 relative border-t" style={{ borderColor: 'var(--border)', background: 'var(--bg)' }}>
 
-      <div className="relative max-w-7xl mx-auto px-6 lg:px-10">
+      <div className="relative max-w-5xl mx-auto px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}

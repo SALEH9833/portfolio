@@ -34,10 +34,8 @@ export default function About({ profile, education }) {
   const { ref, inView } = useInView({ threshold: 0.1, triggerOnce: true });
 
   return (
-    <section id="about" className="bg-ink-950 py-28 lg:py-30">
-      <div className="sep mb-0" />
-
-      <div className="max-w-7xl mx-auto px-6 lg:px-10 pt-22">
+    <section id="about" className="bg-ink-950 py-20 lg:py-24 border-t" style={{ borderColor: 'var(--border)' }}>
+      <div className="max-w-5xl mx-auto px-6 lg:px-8">
 
         {/* Header */}
         <motion.div
@@ -67,7 +65,7 @@ export default function About({ profile, education }) {
               <p>
                 Je m'appelle <strong className="text-ink-50 font-semibold">Saleh Mahamat Saleh</strong>.
                 Étudiant en 2<sup>ème</sup> année DUT Informatique spécialité{' '}
-                <em className="text-gold-500 font-display italic font-semibold not-italic-fallback">Cybersécurité</em> à l'École Supérieure de Technologie de Safi.
+                <em className="text-gold-500  font-semibold not-italic-fallback">Cybersécurité</em> à l'École Supérieure de Technologie de Safi.
               </p>
               <p>
                 Originaire du Tchad, installé au Maroc, je cultive une approche analytique rigoureuse doublée d'une curiosité technique insatiable. Mes deux casquettes — <span className="text-ink-50">développeur full-stack</span> et <span className="text-ink-50">aspirant expert en sécurité</span> — me permettent de concevoir des solutions à la fois fonctionnelles et robustes.
@@ -85,7 +83,7 @@ export default function About({ profile, education }) {
                 const IconC = Icon[item.icon];
                 return (
                   <div key={item.k} className="surface-static p-3.5">
-                    <div className="flex items-center gap-1.5 text-2xs font-mono text-ink-500 uppercase tracking-wider mb-1.5">
+                    <div className="flex items-center gap-1.5 text-xs font-medium text-ink-500  mb-1.5">
                       <IconC size={11} /> {item.k}
                     </div>
                     {item.href ? (
@@ -102,7 +100,7 @@ export default function About({ profile, education }) {
             <div className="surface p-6 space-y-5">
               <div className="flex items-center gap-2 mb-1">
                 <Icon.Globe size={16} className="text-gold-500" />
-                <h3 className="text-sm font-semibold text-ink-50 uppercase tracking-wider">{t('about.languages')}</h3>
+                <h3 className="text-base font-semibold text-ink-50">{t('about.languages')}</h3>
               </div>
               {profile?.languages?.map((lang, i) => (
                 <LangBar key={lang.name} lang={lang} index={i} inView={inView} locale={locale} />

@@ -21,7 +21,7 @@ export default function Footer() {
     <footer className="relative bg-ink-950 border-t border-white/[0.04] pt-16 pb-8">
       <div className="absolute inset-0 bg-gold-radial opacity-30 pointer-events-none" />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-10">
+      <div className="relative z-10 max-w-5xl mx-auto px-6 lg:px-8">
 
         {/* Big CTA strip */}
         <div className="text-center mb-14 pb-14 border-b border-white/[0.05]">

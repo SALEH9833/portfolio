@@ -126,8 +126,8 @@ export default function Chatbot() {
             aria-label={labels.open}
             className="fixed bottom-6 end-6 z-40 w-14 h-14 rounded-full flex items-center justify-center group"
             style={{
-              background: 'linear-gradient(135deg, var(--accent-light), var(--accent) 50%, var(--accent-dark))',
-              boxShadow: '0 8px 28px rgba(200,169,110,0.45)',
+              background: 'var(--accent)',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
               color: 'var(--bg)',
             }}
           >
@@ -137,7 +137,7 @@ export default function Chatbot() {
               </svg>
             </motion.div>
             {!hasSeen && (
-              <span className="absolute -top-1 -end-1 w-3.5 h-3.5 bg-coral rounded-full border-2 animate-pulse" style={{ borderColor: 'var(--bg)' }} />
+              <span className="absolute -top-1 -end-1 w-3.5 h-3.5 bg-coral rounded-full border-2" style={{ borderColor: 'var(--bg)' }} />
             )}
           </motion.button>
         )}
@@ -151,21 +151,21 @@ export default function Chatbot() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed bottom-6 end-6 z-40 w-[calc(100vw-3rem)] sm:w-[400px] h-[calc(100vh-3rem)] sm:h-[600px] max-h-[680px] rounded-2xl flex flex-col overflow-hidden"
+            className="fixed bottom-6 end-6 z-40 w-[calc(100vw-3rem)] sm:w-[400px] h-[calc(100vh-3rem)] sm:h-[600px] max-h-[680px] rounded-md flex flex-col overflow-hidden"
             style={{
               background: 'var(--surface)',
               border: '1px solid var(--border-hover)',
-              boxShadow: '0 20px 60px rgba(0,0,0,0.4), 0 0 0 1px var(--accent-glow)',
+              boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
             }}
           >
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: 'var(--border)' }}>
               <div className="flex items-center gap-3">
                 <div className="relative">
-                  <div className="w-9 h-9 rounded-full flex items-center justify-center text-white" style={{ background: 'linear-gradient(135deg, var(--accent-light), var(--accent-dark))' }}>
+                  <div className="w-9 h-9 rounded-full flex items-center justify-center text-white" style={{ background: 'var(--accent)' }}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><path d="M12 2C6.5 2 2 5.5 2 10c0 2 1 4 3 5l-1 3 4-2c1 .5 2.5.5 4 .5 5.5 0 10-3.5 10-8s-4.5-8-10-8z" fill="none" stroke="currentColor" strokeWidth="1.5"/></svg>
                   </div>
-                  <span className="absolute bottom-0 end-0 w-2.5 h-2.5 rounded-full border-2 bg-sage animate-pulse" style={{ borderColor: 'var(--surface)' }} />
+                  <span className="absolute bottom-0 end-0 w-2.5 h-2.5 rounded-full border-2 bg-sage" style={{ borderColor: 'var(--surface)' }} />
                 </div>
                 <div>
                   <div className="text-sm font-semibold" style={{ color: 'var(--text)' }}>Saleh Assistant</div>
@@ -194,10 +194,10 @@ export default function Chatbot() {
                   className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                   <div className="max-w-[88%]">
                     <div
-                      className={`px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed ${m.role === 'user' ? 'rounded-tr-sm' : 'rounded-tl-sm'}`}
+                      className={`px-3.5 py-2.5 rounded-md text-sm leading-relaxed ${m.role === 'user' ? 'rounded-tr-sm' : 'rounded-tl-sm'}`}
                       style={
                         m.role === 'user'
-                          ? { background: 'linear-gradient(135deg, var(--accent-light), var(--accent-dark))', color: 'var(--bg)' }
+                          ? { background: 'var(--accent)', color: 'var(--bg)' }
                           : { background: 'var(--surface-2)', color: 'var(--text-soft)', border: '1px solid var(--border)' }
                       }
                     >
@@ -222,7 +222,7 @@ export default function Chatbot() {
               ))}
               {loading && (
                 <div className="flex justify-start">
-                  <div className="px-4 py-3 rounded-2xl rounded-tl-sm" style={{ background: 'var(--surface-2)', border: '1px solid var(--border)' }}>
+                  <div className="px-4 py-3 rounded-md rounded-tl-sm" style={{ background: 'var(--surface-2)', border: '1px solid var(--border)' }}>
                     <div className="flex gap-1">
                       <span className="w-1.5 h-1.5 rounded-full animate-bounce" style={{ background: 'var(--accent)', animationDelay: '0ms' }} />
                       <span className="w-1.5 h-1.5 rounded-full animate-bounce" style={{ background: 'var(--accent)', animationDelay: '150ms' }} />
@@ -262,7 +262,7 @@ export default function Chatbot() {
               <button onClick={() => send()} disabled={!input.trim() || loading}
                 aria-label={labels.send}
                 className="w-10 h-10 rounded-full flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed transition-all hover:scale-105"
-                style={{ background: 'linear-gradient(135deg, var(--accent-light), var(--accent-dark))', color: 'var(--bg)' }}>
+                style={{ background: 'var(--accent)', color: 'var(--bg)' }}>
                 <Icon.Send size={15} />
               </button>
             </div>

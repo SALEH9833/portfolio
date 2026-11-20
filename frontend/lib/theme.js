@@ -1,14 +1,14 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 
-const ThemeContext = createContext({ theme: 'dark', toggle: () => {}, setTheme: () => {} });
+const ThemeContext = createContext({ theme: 'light', toggle: () => {}, setTheme: () => {} });
 
 export function ThemeProvider({ children }) {
-  const [theme, setThemeState] = useState('dark');
+  const [theme, setThemeState] = useState('light');
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const saved = localStorage.getItem('theme');
-    const system = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    const system = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     setThemeState(saved || system);
   }, []);
 
