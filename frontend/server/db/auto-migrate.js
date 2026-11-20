@@ -1,10 +1,14 @@
 // Auto-migration au démarrage : crée toutes les tables si elles n'existent pas.
 // Idempotent — safe à exécuter plusieurs fois.
-// Utilisé en production (Railway) car on n'a pas accès à psql directement.
+// Exécuté au premier appel API de chaque instance (Vercel), pas de psql nécessaire.
 
 const fs = require('fs');
 const path = require('path');
 const { query } = require('./index');
+
+// Resolved from the project root (works both in `next dev` and in the Vercel
+// function bundle, where __dirname points inside .next/).
+const SQL_DIR = path.join(process.cwd(), 'server', 'db');
 
 async function autoMigrate() {
   try {
@@ -13,7 +17,7 @@ async function autoMigrate() {
 
     if (!profileExists) {
       console.log('[Migrate] Profile table not found — running schema.sql...');
-      const schema = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf-8');
+      const schema = fs.readFileSync(path.join(SQL_DIR, 'schema.sql'), 'utf-8');
       const stmts = schema.split(/;\s*\n/).map(s => s.trim()).filter(s => s && !s.startsWith('--'));
       for (const s of stmts) {
         try { await query(s); } catch (e) { /* ignore "already exists" */ }
@@ -34,7 +38,7 @@ async function autoMigrate() {
       visited_at TIMESTAMPTZ DEFAULT NOW()
     )`);
     await query('CREATE INDEX IF NOT EXISTS idx_page_views_visited_at ON page_views(visited_at)');
-    await query('CREATE INDEX IF NOT EXISTS idx_page_views_ip_day ON page_views(ip, (visited_at::date))');
+    await query('CREATE INDEX IF NOT EXISTS idx_page_views_ip_day ON page_views(ip, ((visited_at AT TIME ZONE \'UTC\')::date))');
 
     // Note : les anciennes tables de la marketplace CV (users, cv_templates,
     // cv_template_purchases, cv_drafts) ne sont plus créées. Elles ne sont pas
@@ -120,7 +124,7 @@ async function autoMigrate() {
       const expCount = await query('SELECT COUNT(*)::int AS n FROM experience');
       console.log(`[Migrate] Experience table currently has ${expCount.rows[0].n} rows`);
       if (expCount.rows[0].n === 0) {
-        const importPath = path.join(__dirname, 'production-import.sql');
+        const importPath = path.join(SQL_DIR, 'production-import.sql');
         console.log(`[Migrate] Looking for ${importPath}`);
         if (fs.existsSync(importPath)) {
           const sql = fs.readFileSync(importPath, 'utf-8');

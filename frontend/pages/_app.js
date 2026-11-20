@@ -6,13 +6,13 @@ import { I18nProvider } from '../lib/i18n';
 import { ThemeProvider } from '../lib/theme';
 import '../styles/globals.css';
 
-const API = process.env.NEXT_PUBLIC_BACKEND_URL;
+const API = process.env.NEXT_PUBLIC_BACKEND_URL || '';
 
 function PageTracker() {
   const router = useRouter();
 
   useEffect(() => {
-    if (typeof window === 'undefined' || !API) return;
+    if (typeof window === 'undefined') return;
 
     const send = (path) => {
       // Skip admin & API pages from tracking

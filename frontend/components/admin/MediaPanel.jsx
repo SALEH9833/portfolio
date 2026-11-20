@@ -70,7 +70,7 @@ export default function MediaPanel() {
   };
 
   const copyUrl = (url) => {
-    const full = `${API}${url}`;
+    const full = /^https?:/.test(url) ? url : `${window.location.origin}${url}`;
     navigator.clipboard.writeText(full);
     toast.success('URL copiée — collez dans le champ Photo URL du profil');
   };
@@ -177,7 +177,7 @@ export default function MediaPanel() {
             {filtered.map((a) => (
               <div key={a.id} className="group relative rounded-lg overflow-hidden" style={{ background: 'var(--surface-2)', border: '1px solid var(--border)' }}>
                 <div className="aspect-square overflow-hidden">
-                  <img src={`${API}${a.url}`} alt={a.alt_text || a.filename}
+                  <img src={/^https?:/.test(a.url) ? a.url : `${API}${a.url}`} alt={a.alt_text || a.filename}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                 </div>
                 <div className="p-2.5">

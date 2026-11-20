@@ -13,8 +13,10 @@ import Footer      from '../components/Footer';
 import Chatbot     from '../components/Chatbot';
 import Testimonials from '../components/Testimonials';
 
-export async function getServerSideProps() {
-  const backendUrl = process.env.BACKEND_URL || 'http://localhost:5000';
+export async function getServerSideProps({ req }) {
+  // The API is served by this same app (pages/api) — call it on our own host.
+  const proto = req.headers['x-forwarded-proto'] || 'http';
+  const backendUrl = process.env.INTERNAL_API_URL || `${proto}://${req.headers.host}`;
   try {
     // Never let a slow/offline backend hang the page: each call gives up after 4s
     // and falls back to empty data, so the site always renders.

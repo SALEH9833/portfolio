@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const path = require('path');
 const { query } = require('../db');
 
 router.get('/', async (req, res, next) => {
@@ -33,16 +32,9 @@ router.get('/education', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
-// Personal CV download — serves backend/public/files/cv.pdf
+// Personal CV download — the PDF lives in public/files/cv.pdf (served statically)
 router.get('/cv', (req, res) => {
-  const cvPath = path.join(__dirname, '../public/files/cv.pdf');
-  res.download(cvPath, 'Saleh_Mahamat_Saleh_CV.pdf', (err) => {
-    if (err) {
-      res.status(404).json({
-        error: "Le CV n'est pas encore disponible. Saleh peut l'ajouter en plaçant le fichier dans backend/public/files/cv.pdf",
-      });
-    }
-  });
+  res.redirect(302, '/files/cv.pdf');
 });
 
 module.exports = router;
