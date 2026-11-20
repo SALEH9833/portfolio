@@ -45,23 +45,17 @@ export default function Navbar() {
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-        className={`fixed top-0 inset-x-0 z-50 transition-all duration-500 ${
-          scrolled
-            ? 'backdrop-blur-xl shadow-[0_4px_24px_rgba(0,0,0,0.2)]'
-            : ''
-        }`}
+        className="fixed top-0 inset-x-0 z-50 transition-colors duration-200"
         style={{
-          background: scrolled ? 'rgba(var(--bg-rgb, 7,7,7), 0.85)' : 'transparent',
-          backgroundColor: scrolled ? 'color-mix(in srgb, var(--bg) 90%, transparent)' : 'transparent',
+          backgroundColor: scrolled ? 'var(--bg)' : 'transparent',
           borderBottom: scrolled ? '1px solid var(--border)' : 'none',
         }}
       >
-        <div className="max-w-7xl mx-auto px-6 lg:px-10 h-16 flex items-center justify-between">
+        <div className="max-w-5xl mx-auto px-6 lg:px-8 h-16 flex items-center justify-between">
 
           <button onClick={() => go('hero')} className="flex items-center gap-3 group">
-            <span className="relative w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--accent-light)] to-[var(--accent-dark)] flex items-center justify-center text-[var(--bg)] font-display font-bold text-sm transition-transform group-hover:rotate-3 group-hover:scale-110">
+            <span className="w-8 h-8 rounded-md flex items-center justify-center font-display font-semibold text-base" style={{ background: 'var(--accent)', color: 'var(--bg)' }}>
               S
-              <span className="absolute inset-0 rounded-lg blur-md -z-10 group-hover:blur-lg transition-all" style={{ background: 'var(--accent-glow)' }} />
             </span>
             {/* Brand text removed — only the S monogram remains */}
           </button>
@@ -113,8 +107,8 @@ export default function Navbar() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: '100%' }}
             transition={{ type: 'tween', duration: 0.3 }}
-            className="fixed inset-0 z-40 backdrop-blur-xl flex flex-col items-center justify-center gap-7"
-            style={{ background: 'color-mix(in srgb, var(--bg) 95%, transparent)' }}
+            className="fixed inset-0 z-40 flex flex-col items-center justify-center gap-7"
+            style={{ background: 'var(--bg)' }}
           >
             {items.map((item, i) => (
               <motion.button
@@ -123,7 +117,7 @@ export default function Navbar() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.06 }}
                 onClick={() => go(item.href)}
-                className="font-display text-4xl font-medium hover:italic transition-all"
+                className="font-display text-3xl font-semibold"
                 style={{ color: 'var(--text)' }}
               >
                 {item.label}

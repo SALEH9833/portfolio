@@ -68,10 +68,8 @@ export default function Skills({ skills }) {
   const certs      = skills?.certifications || [];
 
   return (
-    <section id="skills" className="bg-ink-900 py-28 lg:py-30">
-      <div className="sep mb-0" />
-
-      <div className="max-w-7xl mx-auto px-6 lg:px-10 pt-22">
+    <section id="skills" className="bg-ink-900 py-20 lg:py-24 border-t" style={{ borderColor: 'var(--border)' }}>
+      <div className="max-w-5xl mx-auto px-6 lg:px-8">
 
         <motion.div
           ref={ref}
@@ -102,7 +100,7 @@ export default function Skills({ skills }) {
             transition={{ delay: 0.5 }}
             className="flex flex-wrap justify-center gap-4 pt-6"
           >
-            <p className="w-full text-center text-2xs font-mono text-ink-400 tracking-[0.22em] uppercase mb-2">
+            <p className="w-full text-center text-xs font-medium text-ink-400  mb-2">
               {t('skills.certTitle')}
             </p>
             {certs.map(c => (

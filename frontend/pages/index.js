@@ -1,11 +1,9 @@
-import { useEffect, useState } from 'react';
 import Head from 'next/head';
 import Navbar      from '../components/Navbar';
 import Hero        from '../components/Hero';
 import Stats       from '../components/Stats';
 import About       from '../components/About';
 import Skills      from '../components/Skills';
-import TechMarquee from '../components/TechMarquee';
 import Projects    from '../components/Projects';
 import Experience  from '../components/Experience';
 import Contact     from '../components/Contact';
@@ -51,27 +49,6 @@ export async function getServerSideProps({ req }) {
   }
 }
 
-function ScrollProgress() {
-  const [p, setP] = useState(0);
-  useEffect(() => {
-    const fn = () => {
-      const h = document.documentElement.scrollHeight - window.innerHeight;
-      setP(h > 0 ? (window.scrollY / h) * 100 : 0);
-    };
-    window.addEventListener('scroll', fn, { passive: true });
-    return () => window.removeEventListener('scroll', fn);
-  }, []);
-  return (
-    <div
-      className="fixed top-0 left-0 h-[2px] z-[60] transition-none"
-      style={{
-        width: `${p}%`,
-        background: 'linear-gradient(90deg, #876d2f, #c8a96e 50%, #f3e7c4)',
-      }}
-    />
-  );
-}
-
 export default function Portfolio({ profile, projects, skills, experience, education }) {
   const title = 'Saleh Mahamat Saleh — Cybersécurité & Full-Stack';
   const desc  = "Portfolio professionnel de Saleh Mahamat Saleh, étudiant en 2ème année DUT Cybersécurité à l'EST Safi. Développeur full-stack passionné par la sécurité des systèmes.";
@@ -94,7 +71,6 @@ export default function Portfolio({ profile, projects, skills, experience, educa
         <meta name="twitter:description" content={desc} />
       </Head>
 
-      <ScrollProgress />
       <div className="bg-ink-950 min-h-screen">
         <Navbar />
         <main>
@@ -102,7 +78,6 @@ export default function Portfolio({ profile, projects, skills, experience, educa
           <Stats />
           <About       profile={profile} education={education} />
           <Skills      skills={skills} />
-          <TechMarquee />
           <Projects    projects={projects} />
           <Experience  experience={experience} />
           <Testimonials />

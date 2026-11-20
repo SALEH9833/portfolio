@@ -39,9 +39,9 @@ module.exports = {
         coral: 'var(--coral)',
       },
       fontFamily: {
-        display: ['"Playfair Display"', 'Georgia', 'serif'],
-        sans:    ['Inter', 'system-ui', 'sans-serif'],
-        mono:    ['"JetBrains Mono"', 'monospace'],
+        display: ['"Source Serif 4"', 'Georgia', 'serif'],
+        sans:    ['"IBM Plex Sans"', 'system-ui', 'sans-serif'],
+        mono:    ['"IBM Plex Mono"', 'ui-monospace', 'monospace'],
       },
       fontSize: {
         '2xs': ['0.65rem', { lineHeight: '1rem', letterSpacing: '0.05em' }],

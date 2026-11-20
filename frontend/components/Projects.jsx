@@ -40,7 +40,7 @@ function Modal({ project, onClose, t, locale }) {
         style={{ borderColor: `${a.color}30` }}
         onClick={e => e.stopPropagation()}
       >
-        <div className="h-0.5 w-full" style={{ background: `linear-gradient(90deg, transparent, ${a.color}, transparent)` }} />
+        <div className="h-0.5 w-full" style={{ background: a.color }} />
 
         <div className="p-7 lg:p-8">
           <button
@@ -53,7 +53,7 @@ function Modal({ project, onClose, t, locale }) {
 
           <div className="flex items-start gap-4 mb-6 pr-12">
             <div
-              className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0"
+              className="w-14 h-14 rounded-md flex items-center justify-center shrink-0"
               style={{ background: a.tint, border: `1px solid ${a.color}25`, color: a.color }}
             >
               <IconC size={24} />
@@ -68,7 +68,7 @@ function Modal({ project, onClose, t, locale }) {
               <h3 className="font-display text-2xl lg:text-3xl text-ink-50 leading-tight">
                 {project.title}
               </h3>
-              <p className="text-sm text-ink-300 mt-1 font-display italic">{pickLocale(project.subtitle, locale)}</p>
+              <p className="text-sm text-ink-300 mt-1 ">{pickLocale(project.subtitle, locale)}</p>
             </div>
           </div>
 
@@ -77,7 +77,7 @@ function Modal({ project, onClose, t, locale }) {
           </p>
 
           <div className="mb-6">
-            <h4 className="text-2xs font-mono text-ink-400 uppercase tracking-[0.2em] mb-3">
+            <h4 className="text-xs font-medium text-ink-400  mb-3">
               {t('projects.modal.features')}
             </h4>
             <ul className="space-y-2">
@@ -91,7 +91,7 @@ function Modal({ project, onClose, t, locale }) {
           </div>
 
           <div className="mb-7">
-            <h4 className="text-2xs font-mono text-ink-400 uppercase tracking-[0.2em] mb-3">
+            <h4 className="text-xs font-medium text-ink-400  mb-3">
               {t('projects.modal.stack')}
             </h4>
             <div className="flex flex-wrap gap-1.5">
@@ -135,7 +135,7 @@ function FeaturedCard({ project, onOpen, t, locale }) {
         {/* Left — info */}
         <div className="lg:col-span-7">
           <div className="flex items-center gap-3 mb-4">
-            <span className="text-2xs font-mono text-gold-500 tracking-[0.22em] uppercase">{t('projects.featured')}</span>
+            <span className="text-xs font-medium text-gold-500 ">{t('projects.featured')}</span>
             <span
               className="text-2xs font-mono px-2 py-0.5 rounded-full border"
               style={{ color: a.color, borderColor: `${a.color}30`, background: a.tint }}
@@ -147,7 +147,7 @@ function FeaturedCard({ project, onOpen, t, locale }) {
           <h3 className="font-display text-3xl lg:text-4xl text-ink-50 leading-tight mb-2">
             {project.title}
           </h3>
-          <p className="text-base font-display italic text-ink-300 mb-5">{pickLocale(project.subtitle, locale)}</p>
+          <p className="text-base  text-ink-300 mb-5">{pickLocale(project.subtitle, locale)}</p>
 
           <p className="text-ink-200 leading-[1.85] mb-6 max-w-xl">
             {pickLocale(project.description, locale)}
@@ -178,18 +178,13 @@ function FeaturedCard({ project, onOpen, t, locale }) {
         {/* Right — large icon visual */}
         <div className="lg:col-span-5 flex justify-center lg:justify-end">
           <motion.div
-            animate={{ y: [0, -8, 0] }}
-            transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
             className="relative"
           >
-            <div className="absolute inset-0 rounded-3xl blur-2xl" style={{ background: `radial-gradient(circle, ${a.color}40, transparent)` }} />
             <div
-              className="relative w-44 h-44 lg:w-52 lg:h-52 rounded-3xl flex items-center justify-center backdrop-blur-sm"
+              className="relative w-44 h-44 lg:w-52 lg:h-52 rounded-md flex items-center justify-center"
               style={{ background: a.tint, border: `1px solid ${a.color}40` }}
             >
               <IconC size={72} className="opacity-80" />
-              <div className="absolute -top-2 -right-2 w-12 h-12 rounded-full bg-gold-500/10 border border-gold-500/20 backdrop-blur-sm" />
-              <div className="absolute -bottom-2 -left-2 w-8 h-8 rounded-full bg-gold-500/10 border border-gold-500/20 backdrop-blur-sm" />
             </div>
           </motion.div>
         </div>
@@ -234,7 +229,7 @@ function Card({ project, index, onOpen, t, locale }) {
         <h3 className="font-display text-xl text-ink-50 leading-tight mb-1 group-hover:text-gold-500 transition-colors">
           {project.title}
         </h3>
-        <p className="text-sm font-display italic text-ink-400 mb-3">{pickLocale(project.subtitle, locale)}</p>
+        <p className="text-sm  text-ink-400 mb-3">{pickLocale(project.subtitle, locale)}</p>
         <p className="text-sm text-ink-300 leading-[1.75] mb-5 flex-1 line-clamp-3">
           {pickLocale(project.description, locale)}
         </p>
@@ -305,10 +300,8 @@ export default function Projects({ projects: initial }) {
 
   return (
     <>
-      <section id="projects" className="bg-ink-950 py-28 lg:py-30">
-        <div className="sep mb-0" />
-
-        <div className="max-w-7xl mx-auto px-6 lg:px-10 pt-22">
+      <section id="projects" className="bg-ink-950 py-20 lg:py-24 border-t" style={{ borderColor: 'var(--border)' }}>
+          <div className="max-w-5xl mx-auto px-6 lg:px-8">
 
           <motion.div
             ref={ref}
@@ -333,7 +326,7 @@ export default function Projects({ projects: initial }) {
             transition={{ delay: 0.2 }}
             className="flex flex-wrap items-center gap-2 mb-10"
           >
-            <span className="text-2xs font-mono text-ink-500 uppercase tracking-wider mr-2">{t('projects.filter')}</span>
+            <span className="text-xs font-medium text-ink-500  mr-2">{t('projects.filter')}</span>
             {categories.map(cat => (
               <button
                 key={cat}
