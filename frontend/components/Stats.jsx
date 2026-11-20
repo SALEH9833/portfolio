@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion';
 import { useI18n } from '../lib/i18n';
 
 export default function Stats() {
@@ -13,12 +14,18 @@ export default function Stats() {
   return (
     <section style={{ background: 'var(--bg)' }}>
       <dl className="max-w-5xl mx-auto px-6 lg:px-8 py-12 grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-8">
-        {STATS.map((s) => (
-          <div key={s.label}>
+        {STATS.map((s, i) => (
+          <motion.div
+            key={s.label}
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.6 }}
+            transition={{ duration: 0.5, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
+          >
             <dt className="text-sm font-medium" style={{ color: 'var(--text-soft)' }}>{s.label}</dt>
             <dd className="stat-number mt-1">{s.value}{s.suffix}</dd>
             <dd className="text-sm mt-1" style={{ color: 'var(--text-faint)' }}>{s.sub}</dd>
-          </div>
+          </motion.div>
         ))}
       </dl>
     </section>
